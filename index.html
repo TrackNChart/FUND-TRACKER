@@ -100,11 +100,7 @@
     const authMessage = document.getElementById("auth-message");
     const logoutBtn = document.getElementById("logout-btn");
 
-    // Load user from localStorage
-    let currentUser = localStorage.getItem("currentUser");
-    if (currentUser) {
-      showTracker();
-    }
+    let currentUser = null; // no auto-login
 
     // Register
     document.getElementById("register-form").addEventListener("submit", function(e) {
@@ -118,7 +114,7 @@
       }
 
       localStorage.setItem("user_" + username, JSON.stringify({ password, budget: 0, expenses: [] }));
-      authMessage.textContent = "Registration successful! You can now log in.";
+      authMessage.textContent = "✅ Registration successful! You can now log in.";
     });
 
     // Login
@@ -129,24 +125,23 @@
 
       const userData = localStorage.getItem("user_" + username);
       if (!userData) {
-        authMessage.textContent = "User not found!";
+        authMessage.textContent = "❌ User not found!";
         return;
       }
 
       const user = JSON.parse(userData);
       if (user.password !== password) {
-        authMessage.textContent = "Incorrect password!";
+        authMessage.textContent = "❌ Incorrect password!";
         return;
       }
 
-      localStorage.setItem("currentUser", username);
       currentUser = username;
       showTracker();
     });
 
     // Logout
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("currentUser");
+      currentUser = null;
       trackerSection.classList.add("hidden");
       authSection.classList.remove("hidden");
       authMessage.textContent = "You have been logged out.";
