@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Finance Planner</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 700px; margin: auto; }
+    h1 { text-align: center; }
+    .card { border: 1px solid #ddd; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px; width: 100%; background: #4CAF50; color: white; border: none; border-radius: 5px; }
+    canvas { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💰 Financial Planner</h1>
+    <div class="card">
+      <h2>Enter Your Monthly Budget</h2>
+      <label>Income: <input type="number" id="income" placeholder="Enter your income"></label>
+      <label>Expenses: <input type="number" id="expenses" placeholder="Enter your expenses"></label>
+      <button onclick="calculateBudget()">Calculate</button>
+      <p id="result"></p>
+    </div>
+
+    <canvas id="financeChart"></canvas>
+  </div>
+
+  <script>
+    let chart;
+
+    function calculateBudget() {
+      const income = parseFloat(document.getElementById("income").value) || 0;
+      const expenses = parseFloat(document.getElementById("expenses").value) || 0;
+      const savings = income - expenses;
+
+      document.getElementById("result").innerHTML = 
+        `Income: ₱${income.toLocaleString()}<br>
+         Expenses: ₱${expenses.toLocaleString()}<br>
+         Savings: ₱${savings.toLocaleString()}`;
+
+      // Chart update
+      const ctx = document.getElementById("financeChart").getContext("2d");
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: ["Expenses", "Savings"],
+          datasets: [{
+            data: [expenses, savings],
+            backgroundColor: ["#FF6384", "#36A2EB"]
+          }]
+        }
+      });
+    }
+  </script>
+</body>
+</html>
