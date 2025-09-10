@@ -3,61 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personal Finance Planner</title>
+  <title>Expense Breakdown</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .container { max-width: 700px; margin: auto; }
-    h1 { text-align: center; }
-    .card { border: 1px solid #ddd; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-    label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px; width: 100%; background: #4CAF50; color: white; border: none; border-radius: 5px; }
-    canvas { margin-top: 20px; }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container">
-    <h1>💰 Financial Planner</h1>
-    <div class="card">
-      <h2>Enter Your Monthly Budget</h2>
-      <label>Income: <input type="number" id="income" placeholder="Enter your income"></label>
-      <label>Expenses: <input type="number" id="expenses" placeholder="Enter your expenses"></label>
-      <button onclick="calculateBudget()">Calculate</button>
-      <p id="result"></p>
-    </div>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+  <h1 class="text-3xl font-bold mb-6">💰 Expense Breakdown</h1>
 
-    <canvas id="financeChart"></canvas>
+  <!-- Input Form -->
+  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+    <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
+    <form id="expense-form" class="space-y-4">
+      <input type="text" id="expense-name" placeholder="Expense name" required class="w-full p-2 border rounded-lg">
+      <input type="number" id="expense-amount" placeholder="Amount" required class="w-full p-2 border rounded-lg">
+      <select id="expense-category" required class="w-full p-2 border rounded-lg">
+        <option value="Food">Food</option>
+        <option value="Transport">Transport</option>
+        <option value="Bills">Bills</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Other">Other</option>
+      </select>
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Add</button>
+    </form>
+  </div>
+
+  <!-- Expense List -->
+  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+    <h2 class="text-xl font-semibold mb-4">Expenses</h2>
+    <ul id="expense-list" class="space-y-2"></ul>
+  </div>
+
+  <!-- Chart -->
+  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-2xl">
+    <h2 class="text-xl font-semibold mb-4">Category Breakdown</h2>
+    <canvas id="expenseChart"></canvas>
   </div>
 
   <script>
-    let chart;
+    const expenseForm = document.getElementById("expense-form");
+    const expenseList = document.getElementById("expense-list");
+    const ctx = document.getElementById("expenseChart").getContext("2d");
 
-    function calculateBudget() {
-      const income = parseFloat(document.getElementById("income").value) || 0;
-      const expenses = parseFloat(document.getElementById("expenses").value) || 0;
-      const savings = income - expenses;
+    let expenses = [];
+    let categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
 
-      document.getElementById("result").innerHTML = 
-        `Income: ₱${income.toLocaleString()}<br>
-         Expenses: ₱${expenses.toLocaleString()}<br>
-         Savings: ₱${savings.toLocaleString()}`;
+    const expenseChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: Object.keys(categories),
+        datasets: [{
+          data: Object.values(categories),
+          backgroundColor: ["#f87171", "#60a5fa", "#facc15", "#34d399", "#a78bfa"]
+        }]
+      }
+    });
 
-      // Chart update
-      const ctx = document.getElementById("financeChart").getContext("2d");
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: "pie",
-        data: {
-          labels: ["Expenses", "Savings"],
-          datasets: [{
-            data: [expenses, savings],
-            backgroundColor: ["#FF6384", "#36A2EB"]
-          }]
-        }
-      });
-    }
+    expenseForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("expense-name").value;
+      const amount = parseFloat(document.getElementById("expense-amount").value);
+      const category = document.getElementById("expense-category").value;
+
+      // Save expense
+      expenses.push({ name, amount, category });
+      categories[category] += amount;
+
+      // Update list
+      const li = document.createElement("li");
+      li.textContent = `${name} - ₱${amount.toFixed(2)} (${category})`;
+      li.className = "p-2 bg-gray-50 rounded-lg shadow-sm";
+      expenseList.appendChild(li);
+
+      // Update chart
+      expenseChart.data.datasets[0].data = Object.values(categories);
+      expenseChart.update();
+
+      // Reset form
+      expenseForm.reset();
+    });
   </script>
 </body>
-
 </html>
