@@ -6,12 +6,23 @@
   <title>Expense & Budget Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.85);
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
-  <h1 class="text-3xl font-bold mb-6">💰 Expense & Budget Tracker</h1>
+<body class="min-h-screen flex flex-col items-center p-6">
+  <h1 class="text-3xl font-bold mb-6 text-gray-800 bg-white/70 px-4 py-2 rounded-lg">💰 Expense & Budget Tracker</h1>
 
   <!-- Budget Input -->
-  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+  <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Set Budget</h2>
     <form id="budget-form" class="space-y-4">
       <input type="number" id="budget-amount" placeholder="Enter budget (₱)" required class="w-full p-2 border rounded-lg">
@@ -21,7 +32,7 @@
   </div>
 
   <!-- Expense Input -->
-  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+  <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
     <form id="expense-form" class="space-y-4">
       <input type="text" id="expense-name" placeholder="Expense name" required class="w-full p-2 border rounded-lg">
@@ -38,20 +49,20 @@
   </div>
 
   <!-- Summary -->
-  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+  <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Summary</h2>
     <p id="total-expenses" class="text-lg">Total Expenses: ₱0.00</p>
     <p id="remaining-budget" class="text-lg font-semibold">Remaining Budget: ₱0.00</p>
   </div>
 
   <!-- Expense List -->
-  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+  <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Expenses</h2>
     <ul id="expense-list" class="space-y-2"></ul>
   </div>
 
   <!-- Chart -->
-  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-2xl">
+  <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-2xl">
     <h2 class="text-xl font-semibold mb-4">Category Breakdown</h2>
     <canvas id="expenseChart"></canvas>
   </div>
