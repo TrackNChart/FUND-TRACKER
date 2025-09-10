@@ -41,6 +41,11 @@
   <!-- Tracker Section (hidden until login) -->
   <div id="tracker-section" class="hidden w-full flex flex-col items-center">
 
+    <!-- Logout Button -->
+    <div class="w-full max-w-md mb-4 flex justify-end">
+      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+    </div>
+
     <!-- Budget Input -->
     <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
       <h2 class="text-xl font-semibold mb-4">Set Budget</h2>
@@ -93,6 +98,7 @@
     const authSection = document.getElementById("auth-section");
     const trackerSection = document.getElementById("tracker-section");
     const authMessage = document.getElementById("auth-message");
+    const logoutBtn = document.getElementById("logout-btn");
 
     // Load user from localStorage
     let currentUser = localStorage.getItem("currentUser");
@@ -138,6 +144,14 @@
       showTracker();
     });
 
+    // Logout
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("currentUser");
+      trackerSection.classList.add("hidden");
+      authSection.classList.remove("hidden");
+      authMessage.textContent = "You have been logged out.";
+    });
+
     function showTracker() {
       authSection.classList.add("hidden");
       trackerSection.classList.remove("hidden");
@@ -176,7 +190,6 @@
       categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
       expenses.forEach(exp => categories[exp.category] += exp.amount);
 
-      // Display
       budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
       expenseList.innerHTML = "";
       expenses.forEach(exp => {
@@ -233,7 +246,8 @@
     }
 
     function saveUserData() {
-      localStorage.setItem("user_" + currentUser, JSON.stringify({ password: JSON.parse(localStorage.getItem("user_" + currentUser)).password, budget, expenses }));
+      const user = JSON.parse(localStorage.getItem("user_" + currentUser));
+      localStorage.setItem("user_" + currentUser, JSON.stringify({ password: user.password, budget, expenses }));
     }
   </script>
 </body>
