@@ -18,12 +18,16 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6">
+<body class="min-h-screen flex flex-col p-6 text-gray-800">
 
-  <h1 class="text-3xl font-bold mb-6 text-gray-800 overlay">💰 Expense & Budget Tracker</h1>
+  <!-- Header -->
+  <header class="w-full flex justify-between items-center mb-6 overlay shadow-md">
+    <h1 class="text-2xl font-bold">💰 Expense & Budget Tracker</h1>
+    <button id="logout-btn" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+  </header>
 
-  <!-- Login/Register Section -->
-  <div id="auth-section" class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
+  <!-- Auth Section -->
+  <div id="auth-section" class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mx-auto">
     <h2 class="text-xl font-semibold mb-4">Login or Register</h2>
     <form id="register-form" class="space-y-2 mb-4">
       <input type="text" id="reg-username" placeholder="Username" required class="w-full p-2 border rounded-lg">
@@ -38,58 +42,63 @@
     <p id="auth-message" class="mt-2 text-red-500 text-sm"></p>
   </div>
 
-  <!-- Tracker Section (hidden until login) -->
-  <div id="tracker-section" class="hidden w-full flex flex-col items-center">
+  <!-- Tracker Section -->
+  <div id="tracker-section" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
 
-    <!-- Logout Button -->
-    <div class="w-full max-w-md mb-4 flex justify-end">
-      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+    <!-- Left Side: Budget + Summary -->
+    <div class="space-y-6">
+      <!-- Budget -->
+      <div class="overlay shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Set Budget</h2>
+        <form id="budget-form" class="space-y-4">
+          <input type="number" id="budget-amount" placeholder="Enter budget (₱)" required class="w-full p-2 border rounded-lg">
+          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600">Set Budget</button>
+        </form>
+        <p id="budget-display" class="mt-4 font-semibold text-lg">Budget: ₱0.00</p>
+      </div>
+
+      <!-- Summary -->
+      <div class="overlay shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Summary</h2>
+        <p id="total-expenses" class="text-lg">Total Expenses: ₱0.00</p>
+        <p id="remaining-budget" class="text-lg font-semibold">Remaining Budget: ₱0.00</p>
+        <hr class="my-2">
+        <p id="monthly-total" class="text-md">Monthly Expenses: ₱0.00</p>
+        <p id="annual-total" class="text-md">Annual Expenses: ₱0.00</p>
+      </div>
     </div>
 
-    <!-- Budget Input -->
-    <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
-      <h2 class="text-xl font-semibold mb-4">Set Budget</h2>
-      <form id="budget-form" class="space-y-4">
-        <input type="number" id="budget-amount" placeholder="Enter budget (₱)" required class="w-full p-2 border rounded-lg">
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600">Set Budget</button>
-      </form>
-      <p id="budget-display" class="mt-4 font-semibold text-lg text-gray-700">Budget: ₱0.00</p>
-    </div>
+    <!-- Right Side: Expenses + Chart -->
+    <div class="space-y-6">
+      <!-- Add Expense -->
+      <div class="overlay shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
+        <form id="expense-form" class="space-y-4">
+          <input type="text" id="expense-name" placeholder="Expense name" required class="w-full p-2 border rounded-lg">
+          <input type="number" id="expense-amount" placeholder="Amount" required class="w-full p-2 border rounded-lg">
+          <input type="date" id="expense-date" required class="w-full p-2 border rounded-lg">
+          <select id="expense-category" required class="w-full p-2 border rounded-lg">
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Bills">Bills</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Other">Other</option>
+          </select>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Add</button>
+        </form>
+      </div>
 
-    <!-- Expense Input -->
-    <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
-      <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
-      <form id="expense-form" class="space-y-4">
-        <input type="text" id="expense-name" placeholder="Expense name" required class="w-full p-2 border rounded-lg">
-        <input type="number" id="expense-amount" placeholder="Amount" required class="w-full p-2 border rounded-lg">
-        <select id="expense-category" required class="w-full p-2 border rounded-lg">
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Bills">Bills</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Other">Other</option>
-        </select>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Add</button>
-      </form>
-    </div>
+      <!-- Expense List -->
+      <div class="overlay shadow-md max-h-60 overflow-y-auto">
+        <h2 class="text-xl font-semibold mb-4">Expenses</h2>
+        <ul id="expense-list" class="space-y-2"></ul>
+      </div>
 
-    <!-- Summary -->
-    <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
-      <h2 class="text-xl font-semibold mb-4">Summary</h2>
-      <p id="total-expenses" class="text-lg">Total Expenses: ₱0.00</p>
-      <p id="remaining-budget" class="text-lg font-semibold">Remaining Budget: ₱0.00</p>
-    </div>
-
-    <!-- Expense List -->
-    <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-md mb-6">
-      <h2 class="text-xl font-semibold mb-4">Expenses</h2>
-      <ul id="expense-list" class="space-y-2"></ul>
-    </div>
-
-    <!-- Chart -->
-    <div class="overlay shadow-md rounded-2xl p-6 w-full max-w-2xl">
-      <h2 class="text-xl font-semibold mb-4">Category Breakdown</h2>
-      <canvas id="expenseChart"></canvas>
+      <!-- Chart -->
+      <div class="overlay shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Category Breakdown</h2>
+        <canvas id="expenseChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -100,7 +109,7 @@
     const authMessage = document.getElementById("auth-message");
     const logoutBtn = document.getElementById("logout-btn");
 
-    let currentUser = null; // no auto-login
+    let currentUser = null;
 
     // Register
     document.getElementById("register-form").addEventListener("submit", function(e) {
@@ -112,7 +121,6 @@
         authMessage.textContent = "Username already exists!";
         return;
       }
-
       localStorage.setItem("user_" + username, JSON.stringify({ password, budget: 0, expenses: [] }));
       authMessage.textContent = "✅ Registration successful! You can now log in.";
     });
@@ -128,13 +136,11 @@
         authMessage.textContent = "❌ User not found!";
         return;
       }
-
       const user = JSON.parse(userData);
       if (user.password !== password) {
         authMessage.textContent = "❌ Incorrect password!";
         return;
       }
-
       currentUser = username;
       showTracker();
     });
@@ -144,20 +150,24 @@
       currentUser = null;
       trackerSection.classList.add("hidden");
       authSection.classList.remove("hidden");
+      logoutBtn.classList.add("hidden");
       authMessage.textContent = "You have been logged out.";
     });
 
     function showTracker() {
       authSection.classList.add("hidden");
       trackerSection.classList.remove("hidden");
+      logoutBtn.classList.remove("hidden");
       loadUserData();
     }
 
-    // ====== Tracker Logic ======
+    // ====== Tracker ======
     const budgetForm = document.getElementById("budget-form");
     const budgetDisplay = document.getElementById("budget-display");
     const totalExpensesDisplay = document.getElementById("total-expenses");
     const remainingBudgetDisplay = document.getElementById("remaining-budget");
+    const monthlyTotalDisplay = document.getElementById("monthly-total");
+    const annualTotalDisplay = document.getElementById("annual-total");
 
     const expenseForm = document.getElementById("expense-form");
     const expenseList = document.getElementById("expense-list");
@@ -171,7 +181,7 @@
       type: "pie",
       data: {
         labels: Object.keys(categories),
-        datasets: [{
+        datasets: [{ 
           data: Object.values(categories),
           backgroundColor: ["#f87171", "#60a5fa", "#facc15", "#34d399", "#a78bfa"]
         }]
@@ -189,7 +199,7 @@
       expenseList.innerHTML = "";
       expenses.forEach(exp => {
         const li = document.createElement("li");
-        li.textContent = `${exp.name} - ₱${exp.amount.toFixed(2)} (${exp.category})`;
+        li.textContent = `${exp.date} - ${exp.name} - ₱${exp.amount.toFixed(2)} (${exp.category})`;
         li.className = "p-2 bg-gray-50 rounded-lg shadow-sm";
         expenseList.appendChild(li);
       });
@@ -199,7 +209,7 @@
       updateSummary();
     }
 
-    // Set Budget
+    // Budget
     budgetForm.addEventListener("submit", function(e) {
       e.preventDefault();
       budget = parseFloat(document.getElementById("budget-amount").value);
@@ -214,13 +224,14 @@
       e.preventDefault();
       const name = document.getElementById("expense-name").value;
       const amount = parseFloat(document.getElementById("expense-amount").value);
+      const date = document.getElementById("expense-date").value;
       const category = document.getElementById("expense-category").value;
 
-      expenses.push({ name, amount, category });
+      expenses.push({ name, amount, category, date });
       categories[category] += amount;
 
       const li = document.createElement("li");
-      li.textContent = `${name} - ₱${amount.toFixed(2)} (${category})`;
+      li.textContent = `${date} - ${name} - ₱${amount.toFixed(2)} (${category})`;
       li.className = "p-2 bg-gray-50 rounded-lg shadow-sm";
       expenseList.appendChild(li);
 
@@ -238,6 +249,18 @@
       const remaining = budget - totalExpenses;
       remainingBudgetDisplay.textContent = `Remaining Budget: ₱${remaining.toFixed(2)}`;
       remainingBudgetDisplay.className = remaining < 0 ? "text-red-500 font-bold" : "text-green-600 font-bold";
+
+      // Monthly
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const monthlyExpenses = expenses.filter(exp => new Date(exp.date).getMonth() === currentMonth && new Date(exp.date).getFullYear() === currentYear)
+                                      .reduce((sum, exp) => sum + exp.amount, 0);
+      monthlyTotalDisplay.textContent = `Monthly Expenses: ₱${monthlyExpenses.toFixed(2)}`;
+
+      // Annual
+      const annualExpenses = expenses.filter(exp => new Date(exp.date).getFullYear() === currentYear)
+                                     .reduce((sum, exp) => sum + exp.amount, 0);
+      annualTotalDisplay.textContent = `Annual Expenses: ₱${annualExpenses.toFixed(2)}`;
     }
 
     function saveUserData() {
