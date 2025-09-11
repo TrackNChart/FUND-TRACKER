@@ -11,14 +11,8 @@
       background: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c') no-repeat center center fixed;
       background-size: cover;
     }
-    header {
-      position: relative;
-    }
-    #logout-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-    }
+    header { position: relative; }
+    #logout-btn { position: absolute; top: 1rem; right: 1rem; }
     .overlay {
       background: rgba(255, 255, 255, 0.75);
       backdrop-filter: blur(10px);
@@ -38,17 +32,28 @@
 
   <!-- Auth Section -->
   <div id="auth-section" class="overlay w-full max-w-md mx-auto">
-    <h2 class="text-xl font-semibold mb-4">Login or Register</h2>
-    <form id="register-form" class="space-y-2 mb-4">
-      <input type="text" id="reg-username" placeholder="Username" required class="w-full p-2 border rounded-lg">
-      <input type="password" id="reg-password" placeholder="Password" required class="w-full p-2 border rounded-lg">
-      <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600">Register</button>
-    </form>
+    <h2 id="auth-title" class="text-xl font-semibold mb-4">Log In</h2>
+    
+    <!-- Log In -->
     <form id="login-form" class="space-y-2">
-      <input type="text" id="login-username" placeholder="Username" required class="w-full p-2 border rounded-lg">
-      <input type="password" id="login-password" placeholder="Password" required class="w-full p-2 border rounded-lg">
-      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Login</button>
+      <input type="text" id="login-username" placeholder="Enter username" required class="w-full p-2 border rounded-lg">
+      <input type="password" id="login-password" placeholder="Enter password" required class="w-full p-2 border rounded-lg">
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Log In</button>
+      <p class="text-sm text-center mt-2">Don’t have an account? 
+        <a href="#" id="switch-to-signup" class="text-blue-600 hover:underline">Sign Up</a>
+      </p>
     </form>
+    
+    <!-- Sign Up (hidden by default) -->
+    <form id="register-form" class="space-y-2 hidden">
+      <input type="text" id="reg-username" placeholder="Choose a username" required class="w-full p-2 border rounded-lg">
+      <input type="password" id="reg-password" placeholder="Choose a password" required class="w-full p-2 border rounded-lg">
+      <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600">Sign Up</button>
+      <p class="text-sm text-center mt-2">Already have an account? 
+        <a href="#" id="switch-to-login" class="text-blue-600 hover:underline">Log In</a>
+      </p>
+    </form>
+    
     <p id="auth-message" class="mt-2 text-red-500 text-sm"></p>
   </div>
 
@@ -129,20 +134,35 @@
     const logoutBtn = document.getElementById("logout-btn");
     let currentUser = null;
 
-    // Register
+    // Toggle forms
+    document.getElementById("switch-to-signup").addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("login-form").classList.add("hidden");
+      document.getElementById("register-form").classList.remove("hidden");
+      document.getElementById("auth-title").textContent = "Sign Up";
+    });
+    document.getElementById("switch-to-login").addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("register-form").classList.add("hidden");
+      document.getElementById("login-form").classList.remove("hidden");
+      document.getElementById("auth-title").textContent = "Log In";
+    });
+
+    // Sign Up
     document.getElementById("register-form").addEventListener("submit", function(e) {
       e.preventDefault();
       const username = document.getElementById("reg-username").value;
       const password = document.getElementById("reg-password").value;
       if (localStorage.getItem("user_" + username)) {
-        authMessage.textContent = "Username already exists!";
+        authMessage.textContent = "❌ Username already exists!";
         return;
       }
       localStorage.setItem("user_" + username, JSON.stringify({ password, budget: 0, expenses: [] }));
-      authMessage.textContent = "✅ Registration successful! You can now log in.";
+      authMessage.textContent = "✅ Sign Up successful! You can now log in.";
+      document.getElementById("register-form").reset();
     });
 
-    // Login
+    // Log In
     document.getElementById("login-form").addEventListener("submit", function(e) {
       e.preventDefault();
       const username = document.getElementById("login-username").value;
@@ -169,7 +189,7 @@
       trackerSection.classList.remove("hidden");
       logoutBtn.classList.remove("hidden");
       loadUserData();
-      document.getElementById("expense-date").valueAsDate = new Date(); // auto-fill date
+      document.getElementById("expense-date").valueAsDate = new Date();
     }
 
     // ====== Tracker ======
