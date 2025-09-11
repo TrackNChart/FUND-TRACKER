@@ -9,7 +9,7 @@
     body {
       min-height: 100vh;
       font-family: Inter, sans-serif;
-      background: url('https://images.unsplash.com/photo-1581092334603-172a9bfa54e3?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
+      background: url('https://images.unsplash.com/photo-1565372915099-9971f2e216a2?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
     }
     .overlay {
       background: rgba(255, 255, 255, 0.9);
@@ -106,11 +106,11 @@
     <!-- Charts -->
     <div class="overlay p-6">
       <h3 class="text-lg font-semibold mb-3">Category Breakdown</h3>
-      <canvas id="expensePie" height="160"></canvas>
+      <canvas id="expensePie"></canvas>
     </div>
     <div class="overlay p-6 col-span-2">
       <h3 class="text-lg font-semibold mb-3">Monthly Expenses (This Year)</h3>
-      <canvas id="monthlyBar" height="160"></canvas>
+      <canvas id="monthlyBar"></canvas>
     </div>
   </main>
 
@@ -144,25 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // Charts
   const pieChart = new Chart(document.getElementById('expensePie').getContext('2d'), {
     type: 'pie',
-    data: { labels: categories, datasets: [{ data: categories.map(()=>0), backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa'] }] }
+    data: { 
+      labels: categories, 
+      datasets: [{ 
+        data: [0,0,0,0,0], 
+        backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa'] 
+      }] 
+    },
+    options: { responsive: true, maintainAspectRatio: false }
   });
+
   const barChart = new Chart(document.getElementById('monthlyBar').getContext('2d'), {
     type: 'bar',
-    data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets:[{ label:'Monthly (₱)', data:Array(12).fill(0), backgroundColor:'#60a5fa'}] },
-    options: { scales: { y: { beginAtZero:true } } }
+    data: { 
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], 
+      datasets:[{ label:'Monthly (₱)', data:Array(12).fill(0), backgroundColor:'#60a5fa'}] 
+    },
+    options: { responsive: true, scales: { y: { beginAtZero:true } } }
   });
 
   // Helpers
   function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
-  function showDashboard() { authSection.classList.add('hidden'); dashboard.classList.remove('hidden'); logoutBtn.classList.remove('hidden'); }
+  function showDashboard() { authSection.classList.add('hidden'); dashboard.classList.remove('hidden'); logoutBtn.classList.remove('hidden'); pieChart.update(); barChart.update(); }
   function showAuth(msg='') { authSection.classList.remove('hidden'); dashboard.classList.add('hidden'); logoutBtn.classList.add('hidden'); authMsg.textContent = msg; }
 
   function updateUI() {
     budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
     const total = expenses.reduce((s,e)=>s+e.amount,0);
     totalExpensesEl.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
-    const remaining = budget-total;
-    remainingBudgetEl.textContent = `Remaining Budget: ₱${remaining.toFixed(2)}`;
+    remainingBudgetEl.textContent = `Remaining Budget: ₱${(budget-total).toFixed(2)}`;
     const now=new Date();
     const monthTotal = expenses.filter(e=>new Date(e.date).getMonth()===now.getMonth()&&new Date(e.date).getFullYear()===now.getFullYear()).reduce((s,e)=>s+e.amount,0);
     const yearTotal = expenses.filter(e=>new Date(e.date).getFullYear()===now.getFullYear()).reduce((s,e)=>s+e.amount,0);
@@ -174,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderExpenses() {
     expenseListEl.innerHTML='';
-    expenses.forEach((e,i)=>{
+    expenses.forEach((e)=> {
       const li=document.createElement('li');
       li.textContent=`${e.date} — ${e.name} (₱${e.amount.toFixed(2)}) [${e.category}]`;
       expenseListEl.appendChild(li);
