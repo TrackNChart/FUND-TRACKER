@@ -1,437 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense & Budget Tracker</title>
-
-  <!-- Tailwind + Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    /* Embedded accounting-themed SVG wallpaper (no external image required) */
     body {
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background-color: #e6f2ff;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360' viewBox='0 0 360 360'><rect width='100%25' height='100%25' fill='%23cfe9ff' /><g opacity='0.14'><rect x='18' y='18' width='60' height='80' rx='6' fill='%23000' /><circle cx='45' cy='120' r='18' fill='%23000' /><rect x='100' y='10' width='140' height='80' rx='8' fill='%23000' /><path d='M120 80 L160 40 L200 70 L240 30' stroke='%23000' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round' /></g><g opacity='0.06'><rect x='260' y='250' width='70' height='70' rx='8' fill='%23000' /><circle cx='295' cy='280' r='22' fill='%23000' /></g></svg>");
-      background-repeat: repeat;
-      background-size: 360px 360px;
+      font-family: Inter, sans-serif;
+      background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
+        url("https://img.freepik.com/free-vector/hand-drawn-accounting-pattern_23-2149153588.jpg") center/cover fixed no-repeat;
     }
-
-    .glass {
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(6px);
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 1.5rem;
     }
-
-    header { position: relative; }
-    #logout-btn { position: absolute; right: 1rem; top: 1rem; }
-
-    /* Small helpers */
-    .card { padding: 1rem; border-radius: 10px; }
   </style>
 </head>
 <body class="p-6">
 
-  <!-- Header -->
-  <header class="glass p-6 mb-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-semibold">💰 Expense & Budget Tracker</h1>
-      <button id="logout-btn" class="hidden bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700">Log out</button>
-    </div>
-  </header>
-
-  <!-- Auth area -->
-  <section id="auth-area" class="max-w-md mx-auto glass p-6 mb-6">
-    <h2 id="auth-title" class="text-xl font-semibold mb-4">Log In</h2>
-
-    <!-- Login form -->
-    <form id="login-form" class="space-y-3">
-      <input id="login-username" class="w-full p-2 border rounded" placeholder="Username" required />
-      <input id="login-password" class="w-full p-2 border rounded" placeholder="Password" type="password" required />
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Log In</button>
-      <p class="text-sm text-center mt-2">Don't have an account? <a href="#" id="to-signup" class="text-blue-600 underline">Sign up</a></p>
-      <p id="auth-msg" class="text-sm text-red-600 mt-2"></p>
+  <!-- Auth Section -->
+  <div id="authSection" class="max-w-md mx-auto card">
+    <h2 id="authTitle" class="text-2xl font-bold mb-4 text-center">Login</h2>
+    <form id="authForm" class="space-y-4">
+      <input id="username" type="text" placeholder="Username" class="w-full border rounded p-2" required>
+      <input id="password" type="password" placeholder="Password" class="w-full border rounded p-2" required>
+      <button id="authBtn" type="submit" class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
     </form>
-
-    <!-- Signup form (hidden) -->
-    <form id="signup-form" class="space-y-3 hidden">
-      <input id="signup-username" class="w-full p-2 border rounded" placeholder="Choose username" required />
-      <input id="signup-password" class="w-full p-2 border rounded" placeholder="Choose password" type="password" required />
-      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Sign up</button>
-      <p class="text-sm text-center mt-2">Already have an account? <a href="#" id="to-login" class="text-blue-600 underline">Log in</a></p>
-      <p id="signup-msg" class="text-sm text-red-600 mt-2"></p>
-    </form>
-  </section>
+    <p class="text-center mt-4">
+      <span id="toggleAuth" class="text-blue-600 cursor-pointer">Don't have an account? Sign up</span>
+    </p>
+  </div>
 
   <!-- Dashboard -->
-  <main id="dashboard" class="hidden max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Left column -->
-    <div class="space-y-6">
-      <div class="glass card">
-        <h3 class="text-lg font-semibold mb-3">Set Budget</h3>
-        <input id="budget-input" type="number" class="w-full p-2 border rounded mb-3" placeholder="Enter budget (₱)" />
-        <button id="set-budget" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Set Budget</button>
-        <p id="budget-display" class="mt-3 font-semibold">Budget: ₱0.00</p>
-      </div>
-
-      <div class="glass card">
-        <h3 class="text-lg font-semibold mb-3">Summary</h3>
-        <p id="total-expenses">Total Expenses: ₱0.00</p>
-        <p id="remaining-budget" class="font-semibold">Remaining Budget: ₱0.00</p>
-        <hr class="my-3" />
-        <p id="monthly-total">Monthly Expenses: ₱0.00</p>
-        <p id="annual-total">Annual Expenses: ₱0.00</p>
-        <button id="reset-btn" class="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Reset Tracker</button>
-      </div>
+  <div id="dashboard" class="hidden">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Expense & Budget Tracker</h1>
+      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
     </div>
 
-    <!-- Middle column -->
-    <div class="space-y-6">
-      <div class="glass card">
-        <h3 class="text-lg font-semibold mb-3">Add Expense</h3>
-        <input id="expense-name" class="w-full p-2 border rounded mb-2" placeholder="Expense name" />
-        <input id="expense-amount" class="w-full p-2 border rounded mb-2" placeholder="Amount" type="number" />
-        <input id="expense-date" class="w-full p-2 border rounded mb-2" type="date" />
-        <select id="expense-category" class="w-full p-2 border rounded mb-2">
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Bills">Bills</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Other">Other</option>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Budget -->
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-2">Set Budget</h2>
+        <input id="budgetInput" type="number" placeholder="Enter budget" class="border p-2 rounded w-full mb-2">
+        <button id="setBudgetBtn" class="bg-green-500 text-white px-4 py-2 rounded">Set Budget</button>
+        <button id="resetBtn" class="bg-gray-400 text-white px-4 py-2 rounded ml-2">Reset</button>
+      </div>
+
+      <!-- Add Expense -->
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-2">Add Expense</h2>
+        <input id="expenseName" type="text" placeholder="Expense name" class="border p-2 rounded w-full mb-2">
+        <input id="expenseAmount" type="number" placeholder="Amount" class="border p-2 rounded w-full mb-2">
+        <input id="expenseDate" type="date" class="border p-2 rounded w-full mb-2">
+        <select id="expenseCategory" class="border p-2 rounded w-full mb-2">
+          <option>Food</option>
+          <option>Transport</option>
+          <option>Bills</option>
+          <option>Shopping</option>
+          <option>Other</option>
         </select>
-        <div class="flex gap-2">
-          <button id="add-expense" class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Add</button>
-          <button id="export-csv" class="flex-1 bg-gray-700 text-white py-2 rounded hover:bg-gray-800">Export CSV</button>
-        </div>
+        <button id="addExpenseBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Add Expense</button>
       </div>
 
-      <div class="glass card max-h-64 overflow-auto">
-        <h3 class="text-lg font-semibold mb-3">Expenses</h3>
-        <ul id="expense-list" class="space-y-2 text-sm"></ul>
-      </div>
-    </div>
-
-    <!-- Right column: charts -->
-    <div class="space-y-6">
-      <div class="glass card">
-        <h3 class="text-lg font-semibold mb-3">Category Breakdown</h3>
-        <div style="height:220px;">
-          <canvas id="pieChart"></canvas>
-        </div>
+      <!-- Expenses List -->
+      <div class="card col-span-1 md:col-span-2">
+        <h2 class="text-xl font-semibold mb-2">Expenses</h2>
+        <ul id="expenseList" class="space-y-2"></ul>
       </div>
 
-      <div class="glass card">
-        <h3 class="text-lg font-semibold mb-3">Monthly Expenses (This Year)</h3>
-        <div style="height:220px;">
-          <canvas id="barChart"></canvas>
-        </div>
+      <!-- Summary -->
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-2">Summary</h2>
+        <p id="totalExpenses">Total Expenses: ₱0</p>
+        <p id="remainingBudget">Remaining Budget: ₱0</p>
+        <p id="monthlyExpenses">Monthly Expenses: ₱0</p>
+        <p id="annualExpenses">Annual Expenses: ₱0</p>
+      </div>
+
+      <!-- Chart -->
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-2">Expenses Breakdown</h2>
+        <canvas id="expenseChart"></canvas>
       </div>
     </div>
-  </main>
+  </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // ---- state ----
-  let users = JSON.parse(localStorage.getItem('users') || '{}');
-  let currentUser = null;
-  let budget = 0;
-  let expenses = [];
-  const categoriesList = ['Food','Transport','Bills','Shopping','Other'];
+  <script>
+    // === Auth ===
+    const authSection = document.getElementById("authSection");
+    const dashboard = document.getElementById("dashboard");
+    const authForm = document.getElementById("authForm");
+    const authTitle = document.getElementById("authTitle");
+    const authBtn = document.getElementById("authBtn");
+    const toggleAuth = document.getElementById("toggleAuth");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-  // ---- DOM refs ----
-  const authArea = document.getElementById('auth-area');
-  const loginForm = document.getElementById('login-form');
-  const signupForm = document.getElementById('signup-form');
-  const toSignup = document.getElementById('to-signup');
-  const toLogin = document.getElementById('to-login');
-  const authMsg = document.getElementById('auth-msg');
-  const signupMsg = document.getElementById('signup-msg');
+    let isLogin = true;
+    let users = JSON.parse(localStorage.getItem("users")) || {};
+    let currentUser = null;
 
-  const dashboard = document.getElementById('dashboard');
-  const logoutBtn = document.getElementById('logout-btn');
+    toggleAuth.addEventListener("click", () => {
+      isLogin = !isLogin;
+      authTitle.textContent = isLogin ? "Login" : "Sign Up";
+      authBtn.textContent = isLogin ? "Login" : "Sign Up";
+      toggleAuth.textContent = isLogin
+        ? "Don't have an account? Sign up"
+        : "Already have an account? Login";
+    });
 
-  const budgetInput = document.getElementById('budget-input');
-  const setBudgetBtn = document.getElementById('set-budget');
-  const budgetDisplay = document.getElementById('budget-display');
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
 
-  const expenseName = document.getElementById('expense-name');
-  const expenseAmount = document.getElementById('expense-amount');
-  const expenseDate = document.getElementById('expense-date');
-  const expenseCategory = document.getElementById('expense-category');
-  const addExpenseBtn = document.getElementById('add-expense');
-  const exportCsvBtn = document.getElementById('export-csv');
+      if (isLogin) {
+        if (users[username] && users[username].password === password) {
+          currentUser = username;
+          showDashboard();
+        } else {
+          alert("Invalid login");
+        }
+      } else {
+        if (users[username]) {
+          alert("User already exists");
+        } else {
+          users[username] = { password, budget: 0, expenses: [], categories: {} };
+          localStorage.setItem("users", JSON.stringify(users));
+          alert("Account created! Please log in.");
+          isLogin = true;
+          authTitle.textContent = "Login";
+          authBtn.textContent = "Login";
+          toggleAuth.textContent = "Don't have an account? Sign up";
+        }
+      }
+    });
 
-  const expenseListEl = document.getElementById('expense-list');
+    logoutBtn.addEventListener("click", () => {
+      currentUser = null;
+      dashboard.classList.add("hidden");
+      authSection.classList.remove("hidden");
+    });
 
-  const totalExpensesEl = document.getElementById('total-expenses');
-  const remainingBudgetEl = document.getElementById('remaining-budget');
-  const monthlyTotalEl = document.getElementById('monthly-total');
-  const annualTotalEl = document.getElementById('annual-total');
+    // === Tracker ===
+    const budgetInput = document.getElementById("budgetInput");
+    const setBudgetBtn = document.getElementById("setBudgetBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const expenseName = document.getElementById("expenseName");
+    const expenseAmount = document.getElementById("expenseAmount");
+    const expenseDate = document.getElementById("expenseDate");
+    const expenseCategory = document.getElementById("expenseCategory");
+    const addExpenseBtn = document.getElementById("addExpenseBtn");
+    const expenseList = document.getElementById("expenseList");
+    const totalExpenses = document.getElementById("totalExpenses");
+    const remainingBudget = document.getElementById("remainingBudget");
+    const monthlyExpenses = document.getElementById("monthlyExpenses");
+    const annualExpenses = document.getElementById("annualExpenses");
 
-  // ---- charts ----
-  const pieCtx = document.getElementById('pieChart').getContext('2d');
-  const barCtx = document.getElementById('barChart').getContext('2d');
+    let budget = 0;
+    let expenses = [];
+    let categories = {};
+    let chart;
 
-  const pieChart = new Chart(pieCtx, {
-    type: 'pie',
-    data: {
-      labels: categoriesList,
-      datasets: [{ data: Array(categoriesList.length).fill(0), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444','#6366f1'] }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
-  });
-
-  const barChart = new Chart(barCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-      datasets: [{ label: 'Monthly (₱)', data: Array(12).fill(0), backgroundColor: '#3b82f6' }]
-    },
-    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-  });
-
-  // ---- helpers ----
-  function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
-
-  function showAuth(msg='') {
-    authArea.classList.remove('hidden');
-    dashboard.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-    authMsg.textContent = msg;
-  }
-
-  function showDashboard() {
-    authArea.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    logoutBtn.classList.remove('hidden');
-    // default date for expense date input
-    expenseDate.valueAsDate = new Date();
-    // ensure charts render correctly after being unhidden
-    pieChart.update();
-    barChart.update();
-  }
-
-  function resetLocalStateFromUser() {
-    if (!currentUser || !users[currentUser]) {
-      budget = 0; expenses = []; return;
+    function saveUserData() {
+      users[currentUser].budget = budget;
+      users[currentUser].expenses = expenses;
+      users[currentUser].categories = categories;
+      localStorage.setItem("users", JSON.stringify(users));
     }
-    const data = users[currentUser].data || { budget:0, expenses: [], categories: {} };
-    budget = Number(data.budget || 0);
-    // normalize expenses to shape: {name, amount, date (ISO), category}
-    expenses = Array.isArray(data.expenses) ? data.expenses.map(e => ({ name: e.name, amount: Number(e.amount), date: e.date, category: e.category })) : [];
-    // ensure categories totals exist
-    const catTotals = {};
-    categoriesList.forEach(c => catTotals[c] = 0);
-    (expenses || []).forEach(e => { if (catTotals[e.category] !== undefined) catTotals[e.category] += Number(e.amount); });
-    users[currentUser].data = { budget, expenses, categories: catTotals };
-    saveUsers();
-  }
 
-  function saveUserData() {
-    if (!currentUser) return;
-    // compute fresh category totals
-    const catTotals = {};
-    categoriesList.forEach(c => catTotals[c] = 0);
-    expenses.forEach(e => { if (catTotals[e.category] !== undefined) catTotals[e.category] += Number(e.amount); });
-    users[currentUser].data = { budget, expenses, categories: catTotals };
-    saveUsers();
-  }
+    function showDashboard() {
+      authSection.classList.add("hidden");
+      dashboard.classList.remove("hidden");
 
-  function renderExpenseList() {
-    expenseListEl.innerHTML = '';
-    // show newest first
-    const sorted = expenses.slice().sort((a,b) => new Date(b.date) - new Date(a.date));
-    sorted.forEach((e, idxSorted) => {
-      const originalIndex = expenses.findIndex(x => x.name===e.name && x.date===e.date && Number(x.amount)===Number(e.amount) && x.category===e.category);
-      const li = document.createElement('li');
-      li.className = 'flex items-center justify-between bg-gray-100 p-2 rounded';
-      const left = document.createElement('div');
-      left.innerHTML = `<div class="font-medium">${escapeHtml(e.name)}</div><div class="text-xs text-gray-600">${(new Date(e.date)).toLocaleDateString()} • ₱${Number(e.amount).toFixed(2)} • ${escapeHtml(e.category)}</div>`;
-      const right = document.createElement('div');
-      right.innerHTML = `<button class="edit text-xs bg-yellow-400 px-2 py-1 rounded mr-2">Edit</button><button class="del text-xs bg-red-500 text-white px-2 py-1 rounded">Delete</button>`;
-      li.appendChild(left);
-      li.appendChild(right);
-      expenseListEl.appendChild(li);
+      budget = users[currentUser].budget || 0;
+      expenses = users[currentUser].expenses || [];
+      categories = users[currentUser].categories || {};
+      renderExpenses();
+      updateSummary();
+    }
 
-      // Delete handler
-      right.querySelector('.del').addEventListener('click', () => {
-        expenses.splice(originalIndex, 1);
-        saveUserData();
-        updateAllUI();
+    setBudgetBtn.addEventListener("click", () => {
+      budget = parseFloat(budgetInput.value) || 0;
+      saveUserData();
+      updateSummary();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      budget = 0;
+      expenses = [];
+      categories = {};
+      saveUserData();
+      renderExpenses();
+      updateSummary();
+    });
+
+    addExpenseBtn.addEventListener("click", () => {
+      const name = expenseName.value.trim();
+      const amount = parseFloat(expenseAmount.value);
+      const date = expenseDate.value || new Date().toISOString().split("T")[0];
+      const category = expenseCategory.value;
+
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert("Please enter valid details");
+        return;
+      }
+
+      const expense = { name, amount, date, category };
+      expenses.push(expense);
+      categories[category] = (categories[category] || 0) + amount;
+
+      saveUserData();
+      renderExpenses();
+      updateSummary();
+
+      expenseName.value = "";
+      expenseAmount.value = "";
+      expenseDate.value = "";
+    });
+
+    function renderExpenses() {
+      expenseList.innerHTML = "";
+      expenses.forEach((e, index) => {
+        let li = document.createElement("li");
+        li.classList.add("flex","justify-between","items-center","bg-gray-100","p-2","rounded");
+
+        li.innerHTML = `
+          <span>${e.name} - ₱${e.amount.toFixed(2)} (${e.category})</span>
+          <div>
+            <button class="edit-btn bg-yellow-400 text-white px-2 py-1 rounded mr-2">Edit</button>
+            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+          </div>
+        `;
+
+        li.querySelector(".delete-btn").addEventListener("click", () => {
+          expenses.splice(index, 1);
+          categories[e.category] -= e.amount;
+          saveUserData();
+          renderExpenses();
+          updateSummary();
+        });
+
+        li.querySelector(".edit-btn").addEventListener("click", () => {
+          let newName = prompt("Edit expense name:", e.name) || e.name;
+          let newAmount = parseFloat(prompt("Edit amount:", e.amount)) || e.amount;
+          let newCategory = prompt("Edit category:", e.category) || e.category;
+
+          categories[e.category] -= e.amount;
+          e.name = newName;
+          e.amount = newAmount;
+          e.category = newCategory;
+          categories[newCategory] = (categories[newCategory] || 0) + newAmount;
+
+          saveUserData();
+          renderExpenses();
+          updateSummary();
+        });
+
+        expenseList.appendChild(li);
       });
+    }
 
-      // Edit handler (opens a small prompt flow)
-      right.querySelector('.edit').addEventListener('click', () => {
-        // prefill a prompt-style edit (could be replaced by a nicer modal)
-        const newName = prompt('Edit name', e.name);
-        if (newName === null) return; // cancel
-        const newAmountRaw = prompt('Edit amount', e.amount);
-        if (newAmountRaw === null) return;
-        const newAmount = Number(newAmountRaw);
-        if (Number.isNaN(newAmount) || newAmount < 0) { alert('Invalid amount'); return; }
-        const newDateRaw = prompt('Edit date (YYYY-MM-DD)', e.date.slice(0,10));
-        if (newDateRaw === null) return;
-        const newDate = new Date(newDateRaw);
-        if (isNaN(newDate)) { alert('Invalid date'); return; }
-        const newCategory = prompt('Edit category (Food, Transport, Bills, Shopping, Other)', e.category) || e.category;
-        // apply
-        expenses[originalIndex] = { name: newName, amount: newAmount, date: newDate.toISOString(), category: categoriesList.includes(newCategory) ? newCategory : 'Other' };
-        saveUserData();
-        updateAllUI();
+    function updateSummary() {
+      let total = expenses.reduce((acc, e) => acc + e.amount, 0);
+      totalExpenses.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
+      remainingBudget.textContent = `Remaining Budget: ₱${(budget - total).toFixed(2)}`;
+
+      let now = new Date();
+      let month = now.getMonth();
+      let year = now.getFullYear();
+      let monthlyTotal = expenses.filter(e => new Date(e.date).getMonth() === month && new Date(e.date).getFullYear() === year)
+                                 .reduce((acc, e) => acc + e.amount, 0);
+      let annualTotal = expenses.filter(e => new Date(e.date).getFullYear() === year)
+                                .reduce((acc, e) => acc + e.amount, 0);
+
+      monthlyExpenses.textContent = `Monthly Expenses: ₱${monthlyTotal.toFixed(2)}`;
+      annualExpenses.textContent = `Annual Expenses: ₱${annualTotal.toFixed(2)}`;
+
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById("expenseChart"), {
+        type: "pie",
+        data: {
+          labels: Object.keys(categories),
+          datasets: [{
+            data: Object.values(categories),
+            backgroundColor: ["#f87171","#60a5fa","#34d399","#fbbf24","#a78bfa"]
+          }]
+        }
+      });
+    }
+
+    // === Enter key shortcuts ===
+    [expenseName, expenseAmount, expenseDate, expenseCategory].forEach(el => {
+      el.addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addExpenseBtn.click();
+        }
       });
     });
-  }
 
-  function updateCharts() {
-    // category totals
-    const catTotals = categoriesList.map(c => 0);
-    expenses.forEach(e => {
-      const i = categoriesList.indexOf(e.category);
-      if (i >= 0) catTotals[i] += Number(e.amount);
+    budgetInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        setBudgetBtn.click();
+      }
     });
-    pieChart.data.datasets[0].data = catTotals;
-    pieChart.update();
 
-    // monthly totals for current year
-    const thisYear = (new Date()).getFullYear();
-    const monthly = Array(12).fill(0);
-    expenses.forEach(e => {
-      const d = new Date(e.date);
-      if (!isNaN(d) && d.getFullYear() === thisYear) monthly[d.getMonth()] += Number(e.amount);
+    // === Enter key for Login/Signup ===
+    authForm.addEventListener("keypress", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        authBtn.click();
+      }
     });
-    barChart.data.datasets[0].data = monthly;
-    barChart.update();
-  }
-
-  function updateSummary() {
-    const total = expenses.reduce((s, e) => s + Number(e.amount), 0);
-    totalExpensesEl.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
-    remainingBudgetEl.textContent = `Remaining Budget: ₱${(budget - total).toFixed(2)}`;
-
-    const now = new Date();
-    const monthTotal = expenses.filter(e => { const d = new Date(e.date); return !isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).reduce((s,e)=>s+Number(e.amount), 0);
-    const yearTotal = expenses.filter(e => { const d = new Date(e.date); return !isNaN(d) && d.getFullYear() === now.getFullYear(); }).reduce((s,e)=>s+Number(e.amount), 0);
-    monthlyTotalEl.textContent = `Monthly Expenses: ₱${monthTotal.toFixed(2)}`;
-    annualTotalEl.textContent = `Annual Expenses: ₱${yearTotal.toFixed(2)}`;
-  }
-
-  function updateAllUI() {
-    renderExpenseList();
-    updateSummary();
-    updateCharts();
-    budgetDisplay.textContent = `Budget: ₱${Number(budget || 0).toFixed(2)}`;
-  }
-
-  // small escape to avoid injection in innerHTML usage
-  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-
-  // ---- auth handlers ----
-  toSignup.addEventListener('click', (e)=>{ e.preventDefault(); loginForm.classList.add('hidden'); signupForm.classList.remove('hidden'); authMsg.textContent=''; });
-  toLogin.addEventListener('click', (e)=>{ e.preventDefault(); signupForm.classList.add('hidden'); loginForm.classList.remove('hidden'); signupMsg.textContent=''; });
-
-  // Login submit
-  loginForm.addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value;
-    if (!username || !password) { authMsg.textContent = 'Enter username and password.'; return; }
-    if (!users[username] || users[username].password !== password) { authMsg.textContent = 'Invalid username or password.'; return; }
-    currentUser = username;
-    resetLocalStateFromUser();
-    showDashboard();
-    updateAllUI();
-    authMsg.textContent = '';
-    console.log('Logged in as', currentUser);
-  });
-
-  // Signup submit
-  signupForm.addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    const username = document.getElementById('signup-username').value.trim();
-    const password = document.getElementById('signup-password').value;
-    if (!username || !password) { signupMsg.textContent = 'Enter username and password.'; return; }
-    if (users[username]) { signupMsg.textContent = 'Username already exists.'; return; }
-    // initialize user structure
-    users[username] = { password, data: { budget:0, expenses:[], categories: categoriesList.reduce((o,c)=> (o[c]=0,o), {}) } };
-    saveUsers();
-    signupMsg.textContent = 'Account created. Please log in.';
-    // switch to login
-    signupForm.reset();
-    signupForm.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-  });
-
-  // logout
-  logoutBtn.addEventListener('click', () => {
-    currentUser = null;
-    showAuth('You have been logged out.');
-  });
-
-  // ---- tracker handlers ----
-  setBudgetBtn.addEventListener('click', () => {
-    const val = Number(budgetInput.value) || 0;
-    budget = val;
-    saveUserData();
-    updateAllUI();
-  });
-
-  addExpenseBtn.addEventListener('click', () => {
-    if (!currentUser) { alert('Please log in'); return; }
-    const name = expenseName.value.trim();
-    const amount = Number(expenseAmount.value);
-    const dateVal = expenseDate.value ? new Date(expenseDate.value) : new Date();
-    const category = expenseCategory.value || 'Other';
-    if (!name || isNaN(amount) || amount <= 0) { alert('Enter valid name and amount.'); return; }
-    const iso = dateVal.toISOString();
-    expenses.push({ name, amount, date: iso, category });
-    // save & update
-    saveUserData();
-    expenseName.value = '';
-    expenseAmount.value = '';
-    expenseDate.valueAsDate = new Date();
-    updateAllUI();
-  });
-
-  // Delete / Edit implemented in renderExpenseList
-
-  // Reset
-  document.getElementById('reset-btn').addEventListener('click', () => {
-    if (!currentUser) return alert('Please log in');
-    if (!confirm('Reset budget and all expenses for this account?')) return;
-    budget = 0;
-    expenses = [];
-    saveUserData();
-    updateAllUI();
-  });
-
-  // Export CSV
-  exportCsvBtn.addEventListener('click', () => {
-    if (!currentUser) return alert('Please log in');
-    if (!expenses.length) return alert('No expenses to export.');
-    const header = ['date','name','category','amount'];
-    const rows = expenses.map(e => [e.date.slice(0,10), e.name, e.category, Number(e.amount).toFixed(2)]);
-    const csv = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${currentUser}_expenses.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
-
-  // ---- init UI ----
-  showAuth();
-
-  // prefill today's date input if exists
-  if (document.getElementById('expense-date')) document.getElementById('expense-date').valueAsDate = new Date();
-});
-</script>
+  </script>
 </body>
 </html>
