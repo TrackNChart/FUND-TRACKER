@@ -4,34 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense & Budget Tracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      background: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c') no-repeat center center fixed;
+      background: url('https://img.freepik.com/free-photo/flat-lay-calculator-desk_23-2148516518.jpg') no-repeat center center fixed;
       background-size: cover;
     }
-    header { position: relative; }
-    #logout-btn { position: absolute; top: 1rem; right: 1rem; }
     .overlay {
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(10px);
       border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      padding: 1rem;
+    }
+    header {
+      position: relative;
+    }
+    #logout-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col p-6 text-gray-800">
+<body class="font-sans">
 
   <!-- Header -->
-  <header class="w-full mb-6 overlay">
-    <h1 class="text-2xl font-bold">💰 Expense & Budget Tracker</h1>
-    <button id="logout-btn" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+  <header class="text-white text-3xl font-bold text-center p-6 bg-gray-800 bg-opacity-80">
+    Expense & Budget Tracker
+    <button id="logout-btn" class="hidden bg-red-500 px-4 py-2 rounded-lg">Log Out</button>
   </header>
 
   <!-- Auth Section -->
-  <div id="auth-section" class="overlay w-full max-w-md mx-auto">
+  <div id="auth-section" class="overlay w-full max-w-md mx-auto mt-10">
     <h2 id="auth-title" class="text-xl font-semibold mb-4">Log In</h2>
     
     <!-- Log In -->
@@ -57,90 +62,85 @@
     <p id="auth-message" class="mt-2 text-red-500 text-sm"></p>
   </div>
 
-  <!-- Tracker Section -->
-  <div id="tracker-section" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-
-    <!-- Left Side: Budget + Summary -->
-    <div class="space-y-6">
-      <!-- Budget -->
-      <div class="overlay">
-        <h2 class="text-xl font-semibold mb-4">Set Budget</h2>
-        <form id="budget-form" class="space-y-4">
-          <input type="number" id="budget-amount" placeholder="Enter budget (₱)" required class="w-full p-2 border rounded-lg">
-          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600">Set Budget</button>
-        </form>
-        <p id="budget-display" class="mt-4 font-semibold text-lg">Budget: ₱0.00</p>
-      </div>
-
-      <!-- Summary -->
-      <div class="overlay">
-        <h2 class="text-xl font-semibold mb-4">Summary</h2>
-        <p id="total-expenses" class="text-lg">Total Expenses: ₱0.00</p>
-        <p id="remaining-budget" class="text-lg font-semibold">Remaining Budget: ₱0.00</p>
-        <hr class="my-2">
-        <p id="monthly-total" class="text-md">Monthly Expenses: ₱0.00</p>
-        <p id="annual-total" class="text-md">Annual Expenses: ₱0.00</p>
-        <button id="reset-btn" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 w-full">
-          Reset Tracker
-        </button>
-      </div>
+  <!-- Dashboard -->
+  <main id="dashboard" class="hidden p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Budget -->
+    <div class="overlay">
+      <h2 class="text-xl font-semibold mb-4">Set Budget</h2>
+      <input type="number" id="budget-input" placeholder="Enter budget" class="w-full p-2 border rounded-lg">
+      <button id="set-budget" class="bg-green-500 text-white px-4 py-2 rounded-lg mt-2 w-full hover:bg-green-600">Set Budget</button>
+      <p id="budget-display" class="mt-2 text-lg font-semibold">Budget: ₱0.00</p>
     </div>
 
-    <!-- Right Side: Expenses + Charts -->
-    <div class="space-y-6">
-      <!-- Add Expense -->
-      <div class="overlay">
-        <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
-        <form id="expense-form" class="space-y-4">
-          <input type="text" id="expense-name" placeholder="Expense name" required class="w-full p-2 border rounded-lg">
-          <input type="number" id="expense-amount" placeholder="Amount" required class="w-full p-2 border rounded-lg">
-          <input type="date" id="expense-date" required class="w-full p-2 border rounded-lg">
-          <select id="expense-category" required class="w-full p-2 border rounded-lg">
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Bills">Bills</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Other">Other</option>
-          </select>
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Add</button>
-        </form>
-      </div>
-
-      <!-- Expense List -->
-      <div class="overlay max-h-60 overflow-y-auto">
-        <h2 class="text-xl font-semibold mb-4">Expenses</h2>
-        <ul id="expense-list" class="space-y-2"></ul>
-      </div>
-
-      <!-- Category Pie Chart -->
-      <div class="overlay">
-        <h2 class="text-xl font-semibold mb-4">Category Breakdown</h2>
-        <canvas id="expenseChart"></canvas>
-      </div>
-
-      <!-- Monthly Bar Chart -->
-      <div class="overlay">
-        <h2 class="text-xl font-semibold mb-4">Monthly Expenses (This Year)</h2>
-        <canvas id="monthlyChart"></canvas>
-      </div>
+    <!-- Summary -->
+    <div class="overlay">
+      <h2 class="text-xl font-semibold mb-4">Summary</h2>
+      <p id="total-expenses" class="text-lg">Total Expenses: ₱0.00</p>
+      <p id="remaining-budget" class="text-lg font-semibold">Remaining Budget: ₱0.00</p>
+      <hr class="my-2">
+      <p id="monthly-total" class="text-md">Monthly Expenses: ₱0.00</p>
+      <p id="annual-total" class="text-md">Annual Expenses: ₱0.00</p>
+      <button id="reset-btn" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 w-full">
+        Reset Tracker
+      </button>
     </div>
-  </div>
+
+    <!-- Add Expense -->
+    <div class="overlay">
+      <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
+      <input type="text" id="expense-name" placeholder="Expense name" class="w-full p-2 border rounded-lg mb-2">
+      <input type="number" id="expense-amount" placeholder="Amount" class="w-full p-2 border rounded-lg mb-2">
+      <input type="date" id="expense-date" class="w-full p-2 border rounded-lg mb-2">
+      <select id="expense-category" class="w-full p-2 border rounded-lg mb-2">
+        <option>Food</option>
+        <option>Transport</option>
+        <option>Bills</option>
+        <option>Shopping</option>
+        <option>Other</option>
+      </select>
+      <button id="add-expense" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Add Expense</button>
+    </div>
+
+    <!-- Expenses List -->
+    <div class="overlay">
+      <h2 class="text-xl font-semibold mb-4">Expenses</h2>
+      <ul id="expense-list" class="space-y-2 text-sm"></ul>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="overlay shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Category Breakdown</h2>
+      <canvas id="expenseChart"></canvas>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="overlay shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Monthly Expenses (This Year)</h2>
+      <canvas id="monthlyChart"></canvas>
+    </div>
+  </main>
 
   <script>
-    // ====== Authentication ======
-    const authSection = document.getElementById("auth-section");
-    const trackerSection = document.getElementById("tracker-section");
-    const authMessage = document.getElementById("auth-message");
-    const logoutBtn = document.getElementById("logout-btn");
+    // ===== User Storage =====
+    let users = JSON.parse(localStorage.getItem("users")) || {};
     let currentUser = null;
+    let budget = 0;
+    let expenses = [];
+    let categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
 
-    // Toggle forms
+    const authSection = document.getElementById("auth-section");
+    const dashboard = document.getElementById("dashboard");
+    const logoutBtn = document.getElementById("logout-btn");
+    const authMessage = document.getElementById("auth-message");
+
+    // Switch between Log In and Sign Up
     document.getElementById("switch-to-signup").addEventListener("click", (e) => {
       e.preventDefault();
       document.getElementById("login-form").classList.add("hidden");
       document.getElementById("register-form").classList.remove("hidden");
       document.getElementById("auth-title").textContent = "Sign Up";
     });
+
     document.getElementById("switch-to-login").addEventListener("click", (e) => {
       e.preventDefault();
       document.getElementById("register-form").classList.add("hidden");
@@ -148,150 +148,95 @@
       document.getElementById("auth-title").textContent = "Log In";
     });
 
-    // Sign Up
-    document.getElementById("register-form").addEventListener("submit", function(e) {
+    // Register
+    document.getElementById("register-form").addEventListener("submit", (e) => {
       e.preventDefault();
-      const username = document.getElementById("reg-username").value;
-      const password = document.getElementById("reg-password").value;
-      if (localStorage.getItem("user_" + username)) {
-        authMessage.textContent = "❌ Username already exists!";
-        return;
+      const username = document.getElementById("reg-username").value.trim();
+      const password = document.getElementById("reg-password").value.trim();
+      if (users[username]) {
+        authMessage.textContent = "⚠️ Username already exists!";
+      } else {
+        users[username] = { password, budget: 0, expenses: [] };
+        localStorage.setItem("users", JSON.stringify(users));
+        authMessage.textContent = "✅ Account created! Please log in.";
+        document.getElementById("register-form").reset();
       }
-      localStorage.setItem("user_" + username, JSON.stringify({ password, budget: 0, expenses: [] }));
-      authMessage.textContent = "✅ Sign Up successful! You can now log in.";
-      document.getElementById("register-form").reset();
     });
 
     // Log In
-    document.getElementById("login-form").addEventListener("submit", function(e) {
+    document.getElementById("login-form").addEventListener("submit", (e) => {
       e.preventDefault();
-      const username = document.getElementById("login-username").value;
-      const password = document.getElementById("login-password").value;
-      const userData = localStorage.getItem("user_" + username);
-      if (!userData) { authMessage.textContent = "❌ User not found!"; return; }
-      const user = JSON.parse(userData);
-      if (user.password !== password) { authMessage.textContent = "❌ Incorrect password!"; return; }
-      currentUser = username;
-      showTracker();
+      const username = document.getElementById("login-username").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      if (users[username] && users[username].password === password) {
+        currentUser = username;
+        budget = users[username].budget || 0;
+        expenses = users[username].expenses || [];
+        categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
+        expenses.forEach(exp => categories[exp.category] += exp.amount);
+
+        authSection.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+        updateSummary();
+        renderExpenses();
+        expenseChart.update();
+        monthlyChart.update();
+      } else {
+        authMessage.textContent = "❌ Invalid username or password!";
+      }
     });
 
-    // Logout
+    // Log Out
     logoutBtn.addEventListener("click", () => {
       currentUser = null;
-      trackerSection.classList.add("hidden");
+      dashboard.classList.add("hidden");
       authSection.classList.remove("hidden");
       logoutBtn.classList.add("hidden");
-      authMessage.textContent = "You have been logged out.";
     });
 
-    function showTracker() {
-      authSection.classList.add("hidden");
-      trackerSection.classList.remove("hidden");
-      logoutBtn.classList.remove("hidden");
-      loadUserData();
-      document.getElementById("expense-date").valueAsDate = new Date();
-    }
-
-    // ====== Tracker ======
-    const budgetForm = document.getElementById("budget-form");
+    // ===== Tracker =====
+    const budgetInput = document.getElementById("budget-input");
     const budgetDisplay = document.getElementById("budget-display");
     const totalExpensesDisplay = document.getElementById("total-expenses");
     const remainingBudgetDisplay = document.getElementById("remaining-budget");
     const monthlyTotalDisplay = document.getElementById("monthly-total");
     const annualTotalDisplay = document.getElementById("annual-total");
-    const expenseForm = document.getElementById("expense-form");
+    const expenseName = document.getElementById("expense-name");
+    const expenseAmount = document.getElementById("expense-amount");
+    const expenseDate = document.getElementById("expense-date");
+    const expenseCategory = document.getElementById("expense-category");
     const expenseList = document.getElementById("expense-list");
-    const ctx = document.getElementById("expenseChart").getContext("2d");
-    const monthlyCtx = document.getElementById("monthlyChart").getContext("2d");
 
-    let budget = 0;
-    let expenses = [];
-    let categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
-
-    const expenseChart = new Chart(ctx, {
-      type: "pie",
-      data: { labels: Object.keys(categories), datasets: [{ data: Object.values(categories), backgroundColor: ["#f87171", "#60a5fa", "#facc15", "#34d399", "#a78bfa"] }] }
-    });
-    const monthlyChart = new Chart(monthlyCtx, {
-      type: "bar",
-      data: { labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], datasets: [{ label: "Monthly Expenses (₱)", data: Array(12).fill(0), backgroundColor: "#60a5fa" }] },
-      options: { scales: { y: { beginAtZero: true } } }
-    });
-
-    function loadUserData() {
-      const user = JSON.parse(localStorage.getItem("user_" + currentUser));
-      budget = user.budget;
-      expenses = user.expenses;
-      categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
-      expenses.forEach(exp => categories[exp.category] += exp.amount);
-      budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
-      expenseList.innerHTML = "";
-      expenses.forEach(exp => {
-        const li = document.createElement("li");
-        li.textContent = `${exp.date} - ${exp.name} - ₱${exp.amount.toFixed(2)} (${exp.category})`;
-        li.className = "p-2 bg-gray-50 rounded-lg shadow-sm";
-        expenseList.appendChild(li);
-      });
-      expenseChart.data.datasets[0].data = Object.values(categories);
-      expenseChart.update();
-      updateSummary();
-    }
-
-    budgetForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      budget = parseFloat(document.getElementById("budget-amount").value);
-      budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
+    document.getElementById("set-budget").addEventListener("click", () => {
+      budget = parseFloat(budgetInput.value) || 0;
       saveUserData();
+      budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
       updateSummary();
-      budgetForm.reset();
     });
 
-    expenseForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("expense-name").value;
-      const amount = parseFloat(document.getElementById("expense-amount").value);
-      const date = document.getElementById("expense-date").value;
-      const category = document.getElementById("expense-category").value;
-      expenses.push({ name, amount, category, date });
-      categories[category] += amount;
-      const li = document.createElement("li");
-      li.textContent = `${date} - ${name} - ₱${amount.toFixed(2)} (${category})`;
-      li.className = "p-2 bg-gray-50 rounded-lg shadow-sm";
-      expenseList.appendChild(li);
-      expenseChart.data.datasets[0].data = Object.values(categories);
-      expenseChart.update();
-      saveUserData();
-      updateSummary();
-      expenseForm.reset();
-      document.getElementById("expense-date").valueAsDate = new Date();
+    document.getElementById("add-expense").addEventListener("click", () => {
+      const name = expenseName.value.trim();
+      const amount = parseFloat(expenseAmount.value);
+      const date = expenseDate.value;
+      const category = expenseCategory.value;
+      if (name && amount && date) {
+        const exp = { name, amount, date, category };
+        expenses.push(exp);
+        categories[category] += amount;
+        saveUserData();
+        renderExpenses();
+        updateSummary();
+        expenseChart.update();
+        monthlyChart.update();
+        expenseName.value = "";
+        expenseAmount.value = "";
+      }
     });
 
-    function updateSummary() {
-      const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-      totalExpensesDisplay.textContent = `Total Expenses: ₱${totalExpenses.toFixed(2)}`;
-      const remaining = budget - totalExpenses;
-      remainingBudgetDisplay.textContent = `Remaining Budget: ₱${remaining.toFixed(2)}`;
-      remainingBudgetDisplay.className = remaining < 0 ? "text-red-500 font-bold" : "text-green-600 font-bold";
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const monthlyExpenses = expenses.filter(exp => { const d = new Date(exp.date); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; }).reduce((sum, exp) => sum + exp.amount, 0);
-      monthlyTotalDisplay.textContent = `Monthly Expenses: ₱${monthlyExpenses.toFixed(2)}`;
-      const annualExpenses = expenses.filter(exp => new Date(exp.date).getFullYear() === currentYear).reduce((sum, exp) => sum + exp.amount, 0);
-      annualTotalDisplay.textContent = `Annual Expenses: ₱${annualExpenses.toFixed(2)}`;
-      let monthlyData = Array(12).fill(0);
-      expenses.forEach(exp => { const d = new Date(exp.date); if (d.getFullYear() === currentYear) { monthlyData[d.getMonth()] += exp.amount; } });
-      monthlyChart.data.datasets[0].data = monthlyData;
-      monthlyChart.update();
-    }
-
-    function saveUserData() {
-      const user = JSON.parse(localStorage.getItem("user_" + currentUser));
-      localStorage.setItem("user_" + currentUser, JSON.stringify({ password: user.password, budget, expenses }));
-    }
-
-    // ====== Reset Button ======
+    // Reset Button
     document.getElementById("reset-btn").addEventListener("click", () => {
-      if (confirm("⚠️ Are you sure you want to reset all budget and expenses?")) {
+      if (confirm("⚠️ Reset all data?")) {
         budget = 0;
         expenses = [];
         categories = { Food: 0, Transport: 0, Bills: 0, Shopping: 0, Other: 0 };
@@ -305,6 +250,80 @@
         updateSummary();
       }
     });
+
+    // ===== Charts =====
+    const ctx = document.getElementById("expenseChart").getContext("2d");
+    const expenseChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: Object.keys(categories),
+        datasets: [{
+          data: Object.values(categories),
+          backgroundColor: ["#f87171", "#60a5fa", "#facc15", "#34d399", "#a78bfa"]
+        }]
+      }
+    });
+
+    const monthlyCtx = document.getElementById("monthlyChart").getContext("2d");
+    const monthlyChart = new Chart(monthlyCtx, {
+      type: "bar",
+      data: {
+        labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+        datasets: [{
+          label: "Monthly Expenses (₱)",
+          data: Array(12).fill(0),
+          backgroundColor: "#60a5fa"
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+
+    // ===== Functions =====
+    function updateSummary() {
+      const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+      totalExpensesDisplay.textContent = `Total Expenses: ₱${totalExpenses.toFixed(2)}`;
+      const remaining = budget - totalExpenses;
+      remainingBudgetDisplay.textContent = `Remaining Budget: ₱${remaining.toFixed(2)}`;
+      remainingBudgetDisplay.className = remaining < 0 ? "text-red-500 font-bold" : "text-green-600 font-bold";
+
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+
+      const monthlyExpenses = expenses.filter(exp => new Date(exp.date).getMonth() === currentMonth && new Date(exp.date).getFullYear() === currentYear)
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      monthlyTotalDisplay.textContent = `Monthly Expenses: ₱${monthlyExpenses.toFixed(2)}`;
+
+      const annualExpenses = expenses.filter(exp => new Date(exp.date).getFullYear() === currentYear)
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      annualTotalDisplay.textContent = `Annual Expenses: ₱${annualExpenses.toFixed(2)}`;
+
+      let monthlyData = Array(12).fill(0);
+      expenses.forEach(exp => {
+        const d = new Date(exp.date);
+        if (d.getFullYear() === currentYear) {
+          monthlyData[d.getMonth()] += exp.amount;
+        }
+      });
+      monthlyChart.data.datasets[0].data = monthlyData;
+      monthlyChart.update();
+    }
+
+    function renderExpenses() {
+      expenseList.innerHTML = "";
+      expenses.forEach(exp => {
+        const li = document.createElement("li");
+        li.textContent = `${exp.date} - ${exp.name} (₱${exp.amount.toFixed(2)}) [${exp.category}]`;
+        expenseList.appendChild(li);
+      });
+    }
+
+    function saveUserData() {
+      if (currentUser) {
+        users[currentUser].budget = budget;
+        users[currentUser].expenses = expenses;
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+    }
   </script>
 </body>
 </html>
