@@ -1,438 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Expense & Budget Tracker — Log In / Sign Up</title>
-
-  <!-- Tailwind CSS -->
+  <meta charset="UTF-8">
+  <title>Expense & Budget Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    body{
-      min-height:100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    body {
+      min-height: 100vh;
+      font-family: Inter, sans-serif;
       background: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
     }
-    .glass {
-      background: rgba(255,255,255,0.78);
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(2,6,23,0.2);
+    .overlay {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
     }
-    header { position: relative; }
-    #logout-btn { position: absolute; right: 1rem; top: 1rem; }
-    /* small screens spacing */
-    .page-padding { padding: 1.25rem; }
+    #logout-btn {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+    }
   </style>
 </head>
-<body class="page-padding">
+<body class="p-6">
 
   <!-- Header -->
-  <header class="glass p-6 mb-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">💰 Expense & Budget Tracker</h1>
-      <button id="logout-btn" class="hidden bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600">Logout</button>
-    </div>
+  <header class="overlay p-6 mb-6 relative">
+    <h1 class="text-2xl font-bold">💰 Expense & Budget Tracker</h1>
+    <button id="logout-btn" class="hidden bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600">Logout</button>
   </header>
 
-  <!-- Auth area -->
-  <section id="auth-area" class="max-w-xl mx-auto glass p-6 mb-6">
+  <!-- Authentication -->
+  <section id="auth-section" class="max-w-md mx-auto overlay p-6 mb-6">
     <h2 id="auth-title" class="text-xl font-semibold mb-4">Log In</h2>
 
-    <!-- Login form (shown by default) -->
+    <!-- Login -->
     <form id="login-form" class="space-y-3">
-      <input id="login-username" type="text" placeholder="Username" class="w-full p-2 border rounded" required />
-      <input id="login-password" type="password" placeholder="Password" class="w-full p-2 border rounded" required />
-      <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Log In</button>
-      <p class="text-sm text-center">Don't have an account? <a href="#" id="show-signup" class="text-blue-600 underline">Sign Up</a></p>
+      <input id="login-username" type="text" placeholder="Username" class="w-full p-2 border rounded" required>
+      <input id="login-password" type="password" placeholder="Password" class="w-full p-2 border rounded" required>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Log In</button>
+      <p class="text-sm text-center">Don’t have an account? 
+        <a href="#" id="show-signup" class="text-blue-600 underline">Sign Up</a>
+      </p>
     </form>
 
-    <!-- Sign up form (hidden) -->
+    <!-- Sign Up -->
     <form id="signup-form" class="space-y-3 hidden">
-      <input id="signup-username" type="text" placeholder="Choose username" class="w-full p-2 border rounded" required />
-      <input id="signup-password" type="password" placeholder="Choose password" class="w-full p-2 border rounded" required />
-      <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Sign Up</button>
-      <p class="text-sm text-center">Already have an account? <a href="#" id="show-login" class="text-blue-600 underline">Log In</a></p>
+      <input id="signup-username" type="text" placeholder="Choose username" class="w-full p-2 border rounded" required>
+      <input id="signup-password" type="password" placeholder="Choose password" class="w-full p-2 border rounded" required>
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Sign Up</button>
+      <p class="text-sm text-center">Already have an account? 
+        <a href="#" id="show-login" class="text-blue-600 underline">Log In</a>
+      </p>
     </form>
 
     <p id="auth-msg" class="mt-3 text-sm text-red-600"></p>
-
-    <!-- dev / debug control: clear all saved accounts -->
-    <div class="mt-4 text-sm text-center">
-      <button id="clear-data" class="text-xs text-gray-600 underline">Clear saved accounts (dev)</button>
-    </div>
   </section>
 
   <!-- Dashboard -->
   <main id="dashboard" class="hidden max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    <!-- Left: budget + summary -->
+    <!-- Left -->
     <div class="space-y-6">
-      <div class="glass p-6">
+      <div class="overlay p-6">
         <h3 class="text-lg font-semibold mb-3">Set Budget</h3>
-        <div class="space-y-3">
-          <input id="budget-input" type="number" class="w-full p-2 border rounded" placeholder="Enter budget (₱)" />
-          <button id="set-budget" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Set Budget</button>
-          <p id="budget-display" class="mt-2 font-medium">Budget: ₱0.00</p>
-        </div>
+        <input id="budget-input" type="number" class="w-full p-2 border rounded mb-3" placeholder="Enter budget (₱)">
+        <button id="set-budget" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Set Budget</button>
+        <p id="budget-display" class="mt-3 font-medium">Budget: ₱0.00</p>
       </div>
 
-      <div class="glass p-6">
+      <div class="overlay p-6">
         <h3 class="text-lg font-semibold mb-3">Summary</h3>
         <p id="total-expenses" class="mb-1">Total Expenses: ₱0.00</p>
         <p id="remaining-budget" class="mb-2 font-semibold">Remaining Budget: ₱0.00</p>
-        <hr class="my-3" />
+        <hr class="my-3">
         <p id="monthly-total" class="mb-1">Monthly Expenses: ₱0.00</p>
-        <p id="annual-total" class="mb-2">Annual Expenses: ₱0.00</p>
-        <button id="reset-btn" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Reset Tracker</button>
+        <p id="annual-total">Annual Expenses: ₱0.00</p>
+        <button id="reset-btn" class="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Reset Tracker</button>
       </div>
     </div>
 
-    <!-- Right: expense entry, list, charts -->
+    <!-- Right -->
     <div class="space-y-6">
-
-      <div class="glass p-6">
+      <div class="overlay p-6">
         <h3 class="text-lg font-semibold mb-3">Add Expense</h3>
-        <div class="space-y-3">
-          <input id="expense-name" type="text" placeholder="Expense name" class="w-full p-2 border rounded" />
-          <input id="expense-amount" type="number" placeholder="Amount" class="w-full p-2 border rounded" />
-          <input id="expense-date" type="date" class="w-full p-2 border rounded" />
-          <select id="expense-category" class="w-full p-2 border rounded">
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Bills">Bills</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Other">Other</option>
-          </select>
-          <button id="add-expense" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Add Expense</button>
-        </div>
+        <input id="expense-name" type="text" placeholder="Expense name" class="w-full p-2 border rounded mb-2">
+        <input id="expense-amount" type="number" placeholder="Amount" class="w-full p-2 border rounded mb-2">
+        <input id="expense-date" type="date" class="w-full p-2 border rounded mb-2">
+        <select id="expense-category" class="w-full p-2 border rounded mb-2">
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Bills">Bills</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Other">Other</option>
+        </select>
+        <button id="add-expense" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Add Expense</button>
       </div>
 
-      <div class="glass p-6 max-h-64 overflow-y-auto">
+      <div class="overlay p-6 max-h-64 overflow-y-auto">
         <h3 class="text-lg font-semibold mb-3">Expenses</h3>
         <ul id="expense-list" class="text-sm space-y-2"></ul>
       </div>
 
-      <div class="glass p-6">
+      <div class="overlay p-6">
         <h3 class="text-lg font-semibold mb-3">Category Breakdown</h3>
         <canvas id="expensePie" height="160"></canvas>
       </div>
 
-      <div class="glass p-6">
+      <div class="overlay p-6">
         <h3 class="text-lg font-semibold mb-3">Monthly Expenses (This Year)</h3>
         <canvas id="monthlyBar" height="160"></canvas>
       </div>
-
     </div>
   </main>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // ---------- storage / state ----------
+  // Storage
   let users = JSON.parse(localStorage.getItem('users') || '{}');
   let currentUser = null;
   let budget = 0;
   let expenses = [];
   const categories = ['Food','Transport','Bills','Shopping','Other'];
 
-  // ---------- DOM ----------
+  // DOM refs
   const loginForm = document.getElementById('login-form');
   const signupForm = document.getElementById('signup-form');
   const showSignup = document.getElementById('show-signup');
   const showLogin = document.getElementById('show-login');
-  const authTitle = document.getElementById('auth-title');
   const authMsg = document.getElementById('auth-msg');
-  const clearDataBtn = document.getElementById('clear-data');
-
+  const authSection = document.getElementById('auth-section');
   const dashboard = document.getElementById('dashboard');
   const logoutBtn = document.getElementById('logout-btn');
+
   const budgetInput = document.getElementById('budget-input');
-  const setBudgetBtn = document.getElementById('set-budget');
   const budgetDisplay = document.getElementById('budget-display');
   const totalExpensesEl = document.getElementById('total-expenses');
   const remainingBudgetEl = document.getElementById('remaining-budget');
   const monthlyTotalEl = document.getElementById('monthly-total');
   const annualTotalEl = document.getElementById('annual-total');
-  const resetBtn = document.getElementById('reset-btn');
-
-  const nameInput = document.getElementById('expense-name');
-  const amountInput = document.getElementById('expense-amount');
-  const dateInput = document.getElementById('expense-date');
-  const categoryInput = document.getElementById('expense-category');
-  const addExpenseBtn = document.getElementById('add-expense');
   const expenseListEl = document.getElementById('expense-list');
 
-  // charts
-  const pieCtx = document.getElementById('expensePie').getContext('2d');
-  const barCtx = document.getElementById('monthlyBar').getContext('2d');
-
-  const pieChart = new Chart(pieCtx, {
+  // Charts
+  const pieChart = new Chart(document.getElementById('expensePie').getContext('2d'), {
     type: 'pie',
     data: { labels: categories, datasets: [{ data: categories.map(()=>0), backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa'] }] }
   });
-  const barChart = new Chart(barCtx, {
+  const barChart = new Chart(document.getElementById('monthlyBar').getContext('2d'), {
     type: 'bar',
     data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets:[{ label:'Monthly (₱)', data:Array(12).fill(0), backgroundColor:'#60a5fa'}] },
     options: { scales: { y: { beginAtZero:true } } }
   });
 
-  // ---------- helpers ----------
+  // Helpers
   function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
-  function showAuth(msg='') {
-    document.getElementById('auth-area').classList.remove('hidden');
-    dashboard.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-    if(msg) authMsg.textContent = msg; else authMsg.textContent = '';
-  }
-  function showDashboard() {
-    authMsg.textContent = '';
-    document.getElementById('auth-area').classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    logoutBtn.classList.remove('hidden');
-    // set today default date
-    dateInput.valueAsDate = new Date();
-  }
-  function resetUIData() {
+  function showDashboard() { authSection.classList.add('hidden'); dashboard.classList.remove('hidden'); logoutBtn.classList.remove('hidden'); }
+  function showAuth(msg='') { authSection.classList.remove('hidden'); dashboard.classList.add('hidden'); logoutBtn.classList.add('hidden'); authMsg.textContent = msg; }
+
+  function updateUI() {
     budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
-    totalExpensesEl.textContent = `Total Expenses: ₱0.00`;
-    remainingBudgetEl.textContent = `Remaining Budget: ₱0.00`;
-    monthlyTotalEl.textContent = `Monthly Expenses: ₱0.00`;
-    annualTotalEl.textContent = `Annual Expenses: ₱0.00`;
-    expenseListEl.innerHTML = '';
-    pieChart.data.datasets[0].data = categories.map(()=>0);
-    pieChart.update();
-    barChart.data.datasets[0].data = Array(12).fill(0);
-    barChart.update();
+    const total = expenses.reduce((s,e)=>s+e.amount,0);
+    totalExpensesEl.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
+    const remaining = budget-total;
+    remainingBudgetEl.textContent = `Remaining Budget: ₱${remaining.toFixed(2)}`;
+    const now=new Date();
+    const monthTotal = expenses.filter(e=>new Date(e.date).getMonth()===now.getMonth()&&new Date(e.date).getFullYear()===now.getFullYear()).reduce((s,e)=>s+e.amount,0);
+    const yearTotal = expenses.filter(e=>new Date(e.date).getFullYear()===now.getFullYear()).reduce((s,e)=>s+e.amount,0);
+    monthlyTotalEl.textContent = `Monthly Expenses: ₱${monthTotal.toFixed(2)}`;
+    annualTotalEl.textContent = `Annual Expenses: ₱${yearTotal.toFixed(2)}`;
+    renderExpenses();
+    updateCharts();
   }
 
-  function loadUserDataToUI() {
-    if(!currentUser) return;
-    const u = users[currentUser] || { budget:0, expenses:[] };
-    budget = u.budget || 0;
-    expenses = Array.isArray(u.expenses)? u.expenses.slice(): [];
-    // ensure amounts are numbers and date strings exist
-    expenses = expenses.map(e => ({ name: e.name, amount: Number(e.amount), date: e.date, category: e.category || 'Other' }));
-    // update category totals
-    const catTotals = categories.map(c => 0);
-    expenses.forEach(exp => {
-      const idx = categories.indexOf(exp.category);
-      if(idx>=0) catTotals[idx] += Number(exp.amount);
-    });
-    pieChart.data.datasets[0].data = catTotals;
-    // monthly totals for current year
-    const thisYear = new Date().getFullYear();
-    const monthly = Array(12).fill(0);
-    expenses.forEach(exp => {
-      const d = new Date(exp.date);
-      if(!isNaN(d)) {
-        if(d.getFullYear() === thisYear) monthly[d.getMonth()] += Number(exp.amount);
-      }
-    });
-    barChart.data.datasets[0].data = monthly;
-    // render UI
-    renderExpenseList();
-    pieChart.update();
-    barChart.update();
-    updateSummary();
-  }
-
-  function renderExpenseList() {
-    expenseListEl.innerHTML = '';
-    // sort descending by date for nicer UX
-    const sorted = expenses.slice().sort((a,b)=> new Date(b.date) - new Date(a.date));
-    sorted.forEach((exp, i) => {
-      const li = document.createElement('li');
-      li.className = 'flex justify-between items-center';
-      li.innerHTML = `<span>${exp.date} — ${exp.name} (₱${Number(exp.amount).toFixed(2)}) [${exp.category}]</span>
-        <div class="space-x-2">
-          <button class="text-xs px-2 py-1 bg-yellow-200 rounded edit-btn" data-i="${i}">Edit</button>
-          <button class="text-xs px-2 py-1 bg-red-200 rounded del-btn" data-i="${i}">Delete</button>
-        </div>`;
+  function renderExpenses() {
+    expenseListEl.innerHTML='';
+    expenses.forEach((e,i)=>{
+      const li=document.createElement('li');
+      li.textContent=`${e.date} — ${e.name} (₱${e.amount.toFixed(2)}) [${e.category}]`;
       expenseListEl.appendChild(li);
     });
-    // attach edit/delete handlers
-    document.querySelectorAll('.del-btn').forEach(btn => btn.addEventListener('click',(e)=>{
-      const idx = Number(e.currentTarget.dataset.i);
-      // remove from original array by finding matching object (safer with duplicates)
-      const target = sorted[idx];
-      const pos = expenses.findIndex(x => x.name===target.name && x.date===target.date && Number(x.amount)===Number(target.amount) && x.category===target.category);
-      if(pos>=0) {
-        expenses.splice(pos,1);
-        saveUserAndRefresh();
-      }
-    }));
-    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click',(e)=>{
-      const idx = Number(e.currentTarget.dataset.i);
-      const target = sorted[idx];
-      // fill form with target values for edit, then delete original so add will create new
-      nameInput.value = target.name;
-      amountInput.value = target.amount;
-      dateInput.value = target.date;
-      categoryInput.value = target.category;
-      // delete original entry
-      const pos = expenses.findIndex(x => x.name===target.name && x.date===target.date && Number(x.amount)===Number(target.amount) && x.category===target.category);
-      if(pos>=0) {
-        expenses.splice(pos,1);
-      }
-      saveUserAndRefresh(false); // save but do not reset form / charts yet (we'll update after user re-adds)
-    }));
   }
 
-  function updateSummary(){
-    const total = expenses.reduce((s,e)=> s + Number(e.amount), 0);
-    totalExpensesEl.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
-    const remaining = budget - total;
-    remainingBudgetEl.textContent = `Remaining Budget: ₱${remaining.toFixed(2)}`;
-    remainingBudgetEl.className = remaining < 0 ? 'mb-2 text-red-600 font-semibold' : 'mb-2 text-green-700 font-semibold';
-    // monthly and annual
-    const now = new Date();
-    const thisMonth = now.getMonth();
-    const thisYear = now.getFullYear();
-    const monthlySum = expenses.filter(e => {
-      const d = new Date(e.date);
-      return !isNaN(d) && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-    }).reduce((s,e)=> s + Number(e.amount), 0);
-    monthlyTotalEl.textContent = `Monthly Expenses: ₱${monthlySum.toFixed(2)}`;
-    const annualSum = expenses.filter(e => {
-      const d = new Date(e.date);
-      return !isNaN(d) && d.getFullYear() === thisYear;
-    }).reduce((s,e)=> s + Number(e.amount), 0);
-    annualTotalEl.textContent = `Annual Expenses: ₱${annualSum.toFixed(2)}`;
+  function updateCharts() {
+    const catTotals = categories.map(c=>0);
+    expenses.forEach(e=>{catTotals[categories.indexOf(e.category)] += e.amount;});
+    pieChart.data.datasets[0].data=catTotals; pieChart.update();
+    const monthly=Array(12).fill(0); const year=new Date().getFullYear();
+    expenses.forEach(e=>{const d=new Date(e.date); if(d.getFullYear()===year) monthly[d.getMonth()]+=e.amount;});
+    barChart.data.datasets[0].data=monthly; barChart.update();
   }
 
-  function saveUserAndRefresh(alertUI=true) {
+  function saveUserData() {
     if(!currentUser) return;
-    users[currentUser] = { password: users[currentUser].password, budget: budget, expenses: expenses };
+    users[currentUser].budget=budget;
+    users[currentUser].expenses=expenses;
     saveUsers();
-    // recompute and update charts
-    const catTotals = categories.map(c => 0);
-    expenses.forEach(exp => {
-      const idx = categories.indexOf(exp.category);
-      if(idx>=0) catTotals[idx] += Number(exp.amount);
-    });
-    pieChart.data.datasets[0].data = catTotals;
-    // monthly
-    const year = new Date().getFullYear();
-    const monthly = Array(12).fill(0);
-    expenses.forEach(exp => {
-      const d = new Date(exp.date);
-      if(!isNaN(d) && d.getFullYear()===year) monthly[d.getMonth()] += Number(exp.amount);
-    });
-    barChart.data.datasets[0].data = monthly;
-    renderExpenseList();
-    pieChart.update();
-    barChart.update();
-    updateSummary();
-    if(alertUI) { /* no toast needed */ }
   }
 
-  // ---------- auth handlers ----------
-  showSignup.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    loginForm.classList.add('hidden');
-    signupForm.classList.remove('hidden');
-    authTitle.textContent = 'Sign Up';
-    authMsg.textContent = '';
-  });
-  showLogin.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    signupForm.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-    authTitle.textContent = 'Log In';
-    authMsg.textContent = '';
-  });
+  // Auth
+  showSignup.addEventListener('click', e=>{e.preventDefault(); loginForm.classList.add('hidden'); signupForm.classList.remove('hidden'); authMsg.textContent='';});
+  showLogin.addEventListener('click', e=>{e.preventDefault(); signupForm.classList.add('hidden'); loginForm.classList.remove('hidden'); authMsg.textContent='';});
 
-  signupForm.addEventListener('submit', (ev)=>{
-    ev.preventDefault();
-    const u = document.getElementById('signup-username').value.trim();
-    const p = document.getElementById('signup-password').value;
-    if(!u || !p) { authMsg.textContent = 'Please enter username & password.'; return; }
-    if(users[u]) { authMsg.textContent = 'Username already exists.'; return; }
-    users[u] = { password: p, budget: 0, expenses: [] };
+  signupForm.addEventListener('submit', e=>{
+    e.preventDefault();
+    const u=document.getElementById('signup-username').value.trim();
+    const p=document.getElementById('signup-password').value;
+    if(users[u]) return authMsg.textContent='Username already exists';
+    users[u]={password:p,budget:0,expenses:[]};
     saveUsers();
-    authMsg.textContent = 'Account created — please log in.';
-    // switch to login
-    signupForm.reset();
-    signupForm.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-    authTitle.textContent = 'Log In';
+    authMsg.textContent='Account created, please log in.';
+    signupForm.reset(); signupForm.classList.add('hidden'); loginForm.classList.remove('hidden');
   });
 
-  loginForm.addEventListener('submit', (ev)=>{
-    ev.preventDefault();
-    const u = document.getElementById('login-username').value.trim();
-    const p = document.getElementById('login-password').value;
-    if(!u || !p) { authMsg.textContent='Enter username & password.'; return; }
-    if(!users[u] || users[u].password !== p) { authMsg.textContent='Invalid username or password.'; return; }
-    currentUser = u;
-    // load user data
-    budget = users[u].budget || 0;
-    expenses = Array.isArray(users[u].expenses) ? users[u].expenses.slice() : [];
-    // update UI
-    showDashboard();
-    loadUserDataToUI();
+  loginForm.addEventListener('submit', e=>{
+    e.preventDefault();
+    const u=document.getElementById('login-username').value.trim();
+    const p=document.getElementById('login-password').value;
+    if(!users[u]||users[u].password!==p) return authMsg.textContent='Invalid credentials';
+    currentUser=u; budget=users[u].budget||0; expenses=users[u].expenses||[];
+    showDashboard(); updateUI();
   });
 
-  // clear saved accounts (dev)
-  clearDataBtn.addEventListener('click', ()=>{
-    if(confirm('Remove all saved accounts from localStorage?')) {
-      localStorage.removeItem('users');
-      users = {};
-      currentUser = null;
-      showAuth('All saved accounts removed.');
-    }
+  logoutBtn.addEventListener('click', ()=>{currentUser=null; showAuth('Logged out');});
+
+  // Tracker handlers
+  document.getElementById('set-budget').addEventListener('click',()=>{budget=Number(budgetInput.value)||0; saveUserData(); updateUI();});
+  document.getElementById('add-expense').addEventListener('click',()=>{
+    const nm=document.getElementById('expense-name').value.trim();
+    const am=Number(document.getElementById('expense-amount').value);
+    const dt=document.getElementById('expense-date').value;
+    const cat=document.getElementById('expense-category').value;
+    if(!nm||!am||!dt) return alert('Fill all fields');
+    expenses.push({name:nm,amount:am,date:dt,category:cat});
+    saveUserData(); updateUI();
+    document.getElementById('expense-name').value='';
+    document.getElementById('expense-amount').value='';
+    document.getElementById('expense-date').valueAsDate=new Date();
+  });
+  document.getElementById('reset-btn').addEventListener('click',()=>{
+    if(confirm('Reset tracker?')){budget=0; expenses=[]; saveUserData(); updateUI();}
   });
 
-  // logout
-  logoutBtn.addEventListener('click', () => {
-    currentUser = null;
-    showAuth('Logged out.');
-  });
-
-  // ---------- tracker handlers ----------
-  setBudgetBtn.addEventListener('click', () => {
-    const val = Number(budgetInput.value) || 0;
-    budget = val;
-    budgetDisplay.textContent = `Budget: ₱${budget.toFixed(2)}`;
-    saveUserAndRefresh();
-  });
-
-  addExpenseBtn.addEventListener('click', () => {
-    const nm = nameInput.value.trim();
-    const am = Number(amountInput.value);
-    const dt = dateInput.value;
-    const cat = categoryInput.value || 'Other';
-    if(!nm || !am || !dt) {
-      alert('Please enter name, amount and date for the expense.');
-      return;
-    }
-    const e = { name: nm, amount: am, date: dt, category: cat };
-    expenses.push(e);
-    saveUserAndRefresh();
-    // clear inputs but keep today's date
-    nameInput.value = '';
-    amountInput.value = '';
-    dateInput.valueAsDate = new Date();
-  });
-
-  resetBtn.addEventListener('click', ()=>{
-    if(!currentUser) return;
-    if(confirm('Reset budget and all expenses for this account?')) {
-      budget = 0;
-      expenses = [];
-      saveUserAndRefresh();
-      budgetDisplay.textContent = 'Budget: ₱0.00';
-    }
-  });
-
-  // initialize UI: show login by default
+  // Init
   showAuth();
-
-  // Console helper for troubleshooting:
-  console.log('Tracker ready. To debug: inspect localStorage key "users". If old data interferes, click "Clear saved accounts".');
 });
 </script>
 </body>
