@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense & Budget Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -28,8 +28,8 @@
   <div id="authSection" class="max-w-md mx-auto card">
     <h2 id="authTitle" class="text-2xl font-bold mb-4 text-center">Login</h2>
     <form id="authForm" class="space-y-4">
-      <input id="username" name="username" type="text" placeholder="Username" class="w-full border rounded p-2" required>
-      <input id="password" name="password" type="password" placeholder="Password" class="w-full border rounded p-2" required>
+      <input id="username" type="text" placeholder="Username" class="w-full border rounded p-2" required>
+      <input id="password" type="password" placeholder="Password" class="w-full border rounded p-2" required>
       <button id="authBtn" type="submit" class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
     </form>
     <p class="text-center mt-4">
@@ -48,41 +48,25 @@
       <!-- Budget -->
       <div class="card">
         <h2 class="text-xl font-semibold mb-2">Set Budget</h2>
-
-        <!-- Budget form: Enter will submit -->
-        <form id="budgetForm" class="space-y-2">
-          <input id="budgetInput" name="budgetInput" type="number" placeholder="Enter budget" class="border p-2 rounded w-full mb-2">
-          <div class="flex gap-2">
-            <button type="submit" id="setBudgetBtn" class="bg-green-500 text-white px-4 py-2 rounded">Set Budget</button>
-            <button type="button" id="resetBtn" class="bg-gray-400 text-white px-4 py-2 rounded">Reset</button>
-          </div>
-        </form>
-
-        <p id="budgetDisplay" class="mt-3 font-semibold">Budget: ₱0.00</p>
+        <input id="budgetInput" type="number" placeholder="Enter budget" class="border p-2 rounded w-full mb-2">
+        <button id="setBudgetBtn" class="bg-green-500 text-white px-4 py-2 rounded">Set Budget</button>
+        <button id="resetBtn" class="bg-gray-400 text-white px-4 py-2 rounded ml-2">Reset</button>
       </div>
 
       <!-- Add Expense -->
       <div class="card">
         <h2 class="text-xl font-semibold mb-2">Add Expense</h2>
-
-        <!-- Expense form: Enter will submit -->
-        <form id="expenseForm" class="space-y-2">
-          <input id="expenseName" name="expenseName" type="text" placeholder="Expense name" class="border p-2 rounded w-full mb-2" required>
-          <input id="expenseAmount" name="expenseAmount" type="number" placeholder="Amount" class="border p-2 rounded w-full mb-2" required>
-          <input id="expenseDate" name="expenseDate" type="date" class="border p-2 rounded w-full mb-2">
-          <select id="expenseCategory" name="expenseCategory" class="border p-2 rounded w-full mb-2">
-            <option>Food</option>
-            <option>Transport</option>
-            <option>Bills</option>
-            <option>Shopping</option>
-            <option>Other</option>
-          </select>
-
-          <div class="flex gap-2">
-            <button type="submit" id="addExpenseBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Add Expense</button>
-            <button type="button" id="exportCsvBtn" class="bg-gray-700 text-white px-4 py-2 rounded">Export CSV</button>
-          </div>
-        </form>
+        <input id="expenseName" type="text" placeholder="Expense name" class="border p-2 rounded w-full mb-2">
+        <input id="expenseAmount" type="number" placeholder="Amount" class="border p-2 rounded w-full mb-2">
+        <input id="expenseDate" type="date" class="border p-2 rounded w-full mb-2">
+        <select id="expenseCategory" class="border p-2 rounded w-full mb-2">
+          <option>Food</option>
+          <option>Transport</option>
+          <option>Bills</option>
+          <option>Shopping</option>
+          <option>Other</option>
+        </select>
+        <button id="addExpenseBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Add Expense</button>
       </div>
 
       <!-- Expenses List -->
@@ -94,10 +78,10 @@
       <!-- Summary -->
       <div class="card">
         <h2 class="text-xl font-semibold mb-2">Summary</h2>
-        <p id="totalExpenses">Total Expenses: ₱0.00</p>
-        <p id="remainingBudget">Remaining Budget: ₱0.00</p>
-        <p id="monthlyExpenses">Monthly Expenses: ₱0.00</p>
-        <p id="annualExpenses">Annual Expenses: ₱0.00</p>
+        <p id="totalExpenses">Total Expenses: ₱0</p>
+        <p id="remainingBudget">Remaining Budget: ₱0</p>
+        <p id="monthlyExpenses">Monthly Expenses: ₱0</p>
+        <p id="annualExpenses">Annual Expenses: ₱0</p>
       </div>
 
       <!-- Chart -->
@@ -109,278 +93,233 @@
   </div>
 
   <script>
-    // ===== state & defaults =====
-    let users = JSON.parse(localStorage.getItem('users') || '{}');
+    // === Auth ===
+    const authSection = document.getElementById("authSection");
+    const dashboard = document.getElementById("dashboard");
+    const authForm = document.getElementById("authForm");
+    const authTitle = document.getElementById("authTitle");
+    const authBtn = document.getElementById("authBtn");
+    const toggleAuth = document.getElementById("toggleAuth");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let isLogin = true;
+    let users = JSON.parse(localStorage.getItem("users")) || {};
     let currentUser = null;
+
+    toggleAuth.addEventListener("click", () => {
+      isLogin = !isLogin;
+      authTitle.textContent = isLogin ? "Login" : "Sign Up";
+      authBtn.textContent = isLogin ? "Login" : "Sign Up";
+      toggleAuth.textContent = isLogin
+        ? "Don't have an account? Sign up"
+        : "Already have an account? Login";
+    });
+
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (isLogin) {
+        if (users[username] && users[username].password === password) {
+          currentUser = username;
+          showDashboard();
+        } else {
+          alert("Invalid login");
+        }
+      } else {
+        if (users[username]) {
+          alert("User already exists");
+        } else {
+          users[username] = { password, budget: 0, expenses: [], categories: {} };
+          localStorage.setItem("users", JSON.stringify(users));
+          alert("Account created! Please log in.");
+          isLogin = true;
+          authTitle.textContent = "Login";
+          authBtn.textContent = "Login";
+          toggleAuth.textContent = "Don't have an account? Sign up";
+        }
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      currentUser = null;
+      dashboard.classList.add("hidden");
+      authSection.classList.remove("hidden");
+    });
+
+    // === Tracker ===
+    const budgetInput = document.getElementById("budgetInput");
+    const setBudgetBtn = document.getElementById("setBudgetBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const expenseName = document.getElementById("expenseName");
+    const expenseAmount = document.getElementById("expenseAmount");
+    const expenseDate = document.getElementById("expenseDate");
+    const expenseCategory = document.getElementById("expenseCategory");
+    const addExpenseBtn = document.getElementById("addExpenseBtn");
+    const expenseList = document.getElementById("expenseList");
+    const totalExpenses = document.getElementById("totalExpenses");
+    const remainingBudget = document.getElementById("remainingBudget");
+    const monthlyExpenses = document.getElementById("monthlyExpenses");
+    const annualExpenses = document.getElementById("annualExpenses");
+
     let budget = 0;
     let expenses = [];
-    const defaultCategories = { Food:0, Transport:0, Bills:0, Shopping:0, Other:0 };
-
-    // ===== DOM refs =====
-    const authSection = document.getElementById('authSection');
-    const authForm = document.getElementById('authForm');
-    const authTitle = document.getElementById('authTitle');
-    const toggleAuth = document.getElementById('toggleAuth');
-    const dashboard = document.getElementById('dashboard');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    const budgetForm = document.getElementById('budgetForm');
-    const budgetInput = document.getElementById('budgetInput');
-    const budgetDisplay = document.getElementById('budgetDisplay');
-    const resetBtn = document.getElementById('resetBtn');
-
-    const expenseForm = document.getElementById('expenseForm');
-    const expenseName = document.getElementById('expenseName');
-    const expenseAmount = document.getElementById('expenseAmount');
-    const expenseDate = document.getElementById('expenseDate');
-    const expenseCategory = document.getElementById('expenseCategory');
-    const exportCsvBtn = document.getElementById('exportCsvBtn');
-
-    const expenseListEl = document.getElementById('expenseList');
-    const totalExpensesEl = document.getElementById('totalExpenses');
-    const remainingBudgetEl = document.getElementById('remainingBudget');
-    const monthlyExpensesEl = document.getElementById('monthlyExpenses');
-    const annualExpensesEl = document.getElementById('annualExpenses');
-
-    // ===== chart =====
+    let categories = {};
     let chart;
-    function renderChart(categoriesObj) {
-      const labels = Object.keys(categoriesObj);
-      const data = Object.values(categoriesObj);
-      if (chart) chart.destroy();
-      chart = new Chart(document.getElementById('expenseChart'), {
-        type: 'pie',
-        data: {
-          labels,
-          datasets: [{
-            data,
-            backgroundColor: ['#f87171','#60a5fa','#34d399','#fbbf24','#a78bfa']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
 
-    // ===== utilities =====
     function saveUserData() {
-      if (!currentUser) return;
       users[currentUser].budget = budget;
       users[currentUser].expenses = expenses;
-      // compute categories totals
-      const catTotals = { ...defaultCategories };
-      expenses.forEach(e => {
-        if (!catTotals[e.category]) catTotals[e.category] = 0;
-        catTotals[e.category] += Number(e.amount);
-      });
-      users[currentUser].categories = catTotals;
-      localStorage.setItem('users', JSON.stringify(users));
-    }
-
-    function showAuth() {
-      authSection.classList.remove('hidden');
-      dashboard.classList.add('hidden');
-      logoutBtn.classList.add('hidden');
+      users[currentUser].categories = categories;
+      localStorage.setItem("users", JSON.stringify(users));
     }
 
     function showDashboard() {
-      authSection.classList.add('hidden');
-      dashboard.classList.remove('hidden');
-      logoutBtn.classList.remove('hidden');
-      // default date
-      if (expenseDate) expenseDate.valueAsDate = new Date();
-      updateAllUI();
-    }
+      authSection.classList.add("hidden");
+      dashboard.classList.remove("hidden");
 
-    function resetLocalFromUser() {
-      if (!currentUser || !users[currentUser]) {
-        budget = 0; expenses = []; return;
-      }
-      const u = users[currentUser];
-      budget = Number(u.budget || 0);
-      expenses = Array.isArray(u.expenses) ? u.expenses.map(x => ({ name: x.name, amount: Number(x.amount), date: x.date, category: x.category })) : [];
-      // ensure categories exist
-      if (!u.categories) u.categories = { ...defaultCategories };
-      saveUserData();
-    }
-
-    function updateAllUI() {
-      // render list
-      renderExpenseList();
-      // update summary
+      budget = users[currentUser].budget || 0;
+      expenses = users[currentUser].expenses || [];
+      categories = users[currentUser].categories || {};
+      renderExpenses();
       updateSummary();
-      // update budget label
-      budgetDisplay.textContent = `Budget: ₱${Number(budget || 0).toFixed(2)}`;
-      // render chart
-      const cats = users[currentUser] && users[currentUser].categories ? users[currentUser].categories : defaultCategories;
-      renderChart(cats);
     }
 
-    function renderExpenseList() {
-      expenseListEl.innerHTML = '';
-      const sorted = expenses.slice().sort((a,b) => new Date(b.date) - new Date(a.date));
-      sorted.forEach((e) => {
-        // find original index in expenses array for safe delete/edit
-        const idx = expenses.findIndex(x => x.name===e.name && x.date===e.date && Number(x.amount)===Number(e.amount) && x.category===e.category);
-        const li = document.createElement('li');
-        li.className = 'flex items-center justify-between bg-gray-100 p-2 rounded';
-        const left = document.createElement('div');
-        left.innerHTML = `<div class="font-medium">${escapeHtml(e.name)}</div>
-          <div class="text-xs text-gray-600">${new Date(e.date).toLocaleDateString()} • ₱${Number(e.amount).toFixed(2)} • ${escapeHtml(e.category)}</div>`;
-        const right = document.createElement('div');
-        right.innerHTML = `<button class="edit text-xs bg-yellow-400 px-2 py-1 rounded mr-2">Edit</button>
-          <button class="del text-xs bg-red-500 text-white px-2 py-1 rounded">Delete</button>`;
-        li.appendChild(left);
-        li.appendChild(right);
-        expenseListEl.appendChild(li);
+    setBudgetBtn.addEventListener("click", () => {
+      budget = parseFloat(budgetInput.value) || 0;
+      saveUserData();
+      updateSummary();
+    });
 
-        // delete
-        right.querySelector('.del').addEventListener('click', () => {
-          expenses.splice(idx, 1);
+    resetBtn.addEventListener("click", () => {
+      budget = 0;
+      expenses = [];
+      categories = {};
+      saveUserData();
+      renderExpenses();
+      updateSummary();
+    });
+
+    addExpenseBtn.addEventListener("click", () => {
+      const name = expenseName.value.trim();
+      const amount = parseFloat(expenseAmount.value);
+      const date = expenseDate.value || new Date().toISOString().split("T")[0];
+      const category = expenseCategory.value;
+
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert("Please enter valid details");
+        return;
+      }
+
+      const expense = { name, amount, date, category };
+      expenses.push(expense);
+      categories[category] = (categories[category] || 0) + amount;
+
+      saveUserData();
+      renderExpenses();
+      updateSummary();
+
+      expenseName.value = "";
+      expenseAmount.value = "";
+      expenseDate.value = "";
+    });
+
+    function renderExpenses() {
+      expenseList.innerHTML = "";
+      expenses.forEach((e, index) => {
+        let li = document.createElement("li");
+        li.classList.add("flex","justify-between","items-center","bg-gray-100","p-2","rounded");
+
+        li.innerHTML = `
+          <span>${e.name} - ₱${e.amount.toFixed(2)} (${e.category})</span>
+          <div>
+            <button class="edit-btn bg-yellow-400 text-white px-2 py-1 rounded mr-2">Edit</button>
+            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+          </div>
+        `;
+
+        li.querySelector(".delete-btn").addEventListener("click", () => {
+          expenses.splice(index, 1);
+          categories[e.category] -= e.amount;
           saveUserData();
-          updateAllUI();
+          renderExpenses();
+          updateSummary();
         });
 
-        // edit (simple prompt flow)
-        right.querySelector('.edit').addEventListener('click', () => {
-          const newName = prompt('Edit name', e.name);
-          if (newName === null) return;
-          const newAmountRaw = prompt('Edit amount', e.amount);
-          if (newAmountRaw === null) return;
-          const newAmount = Number(newAmountRaw);
-          if (Number.isNaN(newAmount) || newAmount < 0) { alert('Invalid amount'); return; }
-          const newDateRaw = prompt('Edit date (YYYY-MM-DD)', e.date.slice(0,10));
-          if (newDateRaw === null) return;
-          const newDate = new Date(newDateRaw);
-          if (isNaN(newDate)) { alert('Invalid date'); return; }
-          const newCategory = prompt('Edit category (Food, Transport, Bills, Shopping, Other)', e.category) || e.category;
-          expenses[idx] = { name: newName, amount: newAmount, date: newDate.toISOString(), category: ['Food','Transport','Bills','Shopping','Other'].includes(newCategory) ? newCategory : 'Other' };
+        li.querySelector(".edit-btn").addEventListener("click", () => {
+          let newName = prompt("Edit expense name:", e.name) || e.name;
+          let newAmount = parseFloat(prompt("Edit amount:", e.amount)) || e.amount;
+          let newCategory = prompt("Edit category:", e.category) || e.category;
+
+          categories[e.category] -= e.amount;
+          e.name = newName;
+          e.amount = newAmount;
+          e.category = newCategory;
+          categories[newCategory] = (categories[newCategory] || 0) + newAmount;
+
           saveUserData();
-          updateAllUI();
+          renderExpenses();
+          updateSummary();
         });
+
+        expenseList.appendChild(li);
       });
     }
 
     function updateSummary() {
-      const total = expenses.reduce((s, e) => s + Number(e.amount), 0);
-      totalExpensesEl.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
-      remainingBudgetEl.textContent = `Remaining Budget: ₱${(budget - total).toFixed(2)}`;
+      let total = expenses.reduce((acc, e) => acc + e.amount, 0);
+      totalExpenses.textContent = `Total Expenses: ₱${total.toFixed(2)}`;
+      remainingBudget.textContent = `Remaining Budget: ₱${(budget - total).toFixed(2)}`;
 
-      const now = new Date();
-      const monthTotal = expenses.filter(e => { const d = new Date(e.date); return !isNaN(d) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth(); }).reduce((s,e) => s + Number(e.amount), 0);
-      const yearTotal = expenses.filter(e => { const d = new Date(e.date); return !isNaN(d) && d.getFullYear() === now.getFullYear(); }).reduce((s,e) => s + Number(e.amount), 0);
-      monthlyExpensesEl.textContent = `Monthly Expenses: ₱${monthTotal.toFixed(2)}`;
-      annualExpensesEl.textContent = `Annual Expenses: ₱${yearTotal.toFixed(2)}`;
+      let now = new Date();
+      let month = now.getMonth();
+      let year = now.getFullYear();
+      let monthlyTotal = expenses.filter(e => new Date(e.date).getMonth() === month && new Date(e.date).getFullYear() === year)
+                                 .reduce((acc, e) => acc + e.amount, 0);
+      let annualTotal = expenses.filter(e => new Date(e.date).getFullYear() === year)
+                                .reduce((acc, e) => acc + e.amount, 0);
+
+      monthlyExpenses.textContent = `Monthly Expenses: ₱${monthlyTotal.toFixed(2)}`;
+      annualExpenses.textContent = `Annual Expenses: ₱${annualTotal.toFixed(2)}`;
+
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById("expenseChart"), {
+        type: "pie",
+        data: {
+          labels: Object.keys(categories),
+          datasets: [{
+            data: Object.values(categories),
+            backgroundColor: ["#f87171","#60a5fa","#34d399","#fbbf24","#a78bfa"]
+          }]
+        }
+      });
     }
 
-    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-
-    // ===== Auth handlers =====
-    let isLogin = true;
-    toggleAuth.addEventListener('click', () => {
-      isLogin = !isLogin;
-      authTitle.textContent = isLogin ? 'Login' : 'Sign Up';
-      document.getElementById('authBtn').textContent = isLogin ? 'Login' : 'Sign Up';
-      toggleAuth.textContent = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+    // === Enter key shortcuts ===
+    [expenseName, expenseAmount, expenseDate, expenseCategory].forEach(el => {
+      el.addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addExpenseBtn.click();
+        }
+      });
     });
 
-    authForm.addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      if (!username || !password) return alert('Enter username and password.');
-      if (isLogin) {
-        if (!users[username] || users[username].password !== password) return alert('Invalid credentials.');
-        currentUser = username;
-        // ensure user shape
-        users[currentUser].budget = users[currentUser].budget || 0;
-        users[currentUser].expenses = users[currentUser].expenses || [];
-        users[currentUser].categories = users[currentUser].categories || { ...defaultCategories };
-        resetLocalFromUser();
-        showDashboard();
-        updateAllUI();
-      } else {
-        if (users[username]) return alert('User already exists.');
-        users[username] = { password, budget:0, expenses:[], categories: { ...defaultCategories } };
-        localStorage.setItem('users', JSON.stringify(users));
-        alert('Account created. Please log in.');
-        isLogin = true;
-        authTitle.textContent = 'Login';
-        document.getElementById('authBtn').textContent = 'Login';
-        toggleAuth.textContent = "Don't have an account? Sign up";
+    budgetInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        setBudgetBtn.click();
       }
     });
 
-    logoutBtn.addEventListener('click', () => {
-      currentUser = null;
-      showAuth();
+    // === Enter key for Login/Signup ===
+    authForm.addEventListener("keypress", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        authBtn.click();
+      }
     });
-
-    // ===== Budget form submit (Enter works here) =====
-    budgetForm.addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      if (!currentUser) return alert('Please log in first.');
-      const val = Number(budgetInput.value) || 0;
-      budget = val;
-      saveUserData();
-      updateAllUI();
-    });
-
-    // Reset budget button (keeps account)
-    resetBtn.addEventListener('click', () => {
-      if (!currentUser) return alert('Please log in first.');
-      budget = 0;
-      budgetInput.value = '';
-      saveUserData();
-      updateAllUI();
-    });
-
-    // ===== Expense form submit (Enter works here) =====
-    expenseForm.addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      if (!currentUser) return alert('Please log in first.');
-      const name = expenseName.value.trim();
-      const amount = Number(expenseAmount.value);
-      const dateVal = expenseDate.value ? new Date(expenseDate.value) : new Date();
-      const iso = dateVal.toISOString();
-      const category = expenseCategory.value || 'Other';
-      if (!name || isNaN(amount) || amount <= 0) return alert('Enter valid name and amount.');
-      expenses.push({ name, amount, date: iso, category });
-      saveUserData();
-      expenseForm.reset();
-      expenseDate.valueAsDate = new Date();
-      updateAllUI();
-    });
-
-    // ===== Export CSV =====
-    exportCsvBtn.addEventListener('click', () => {
-      if (!currentUser) return alert('Please log in.');
-      if (!expenses.length) return alert('No expenses to export.');
-      const header = ['date','name','category','amount'];
-      const rows = expenses.map(e => [e.date.slice(0,10), e.name, e.category, Number(e.amount).toFixed(2)]);
-      const csv = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${currentUser}_expenses.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    // ===== Reset whole tracker for account =====
-    document.getElementById('reset-btn')?.addEventListener('click', () => {
-      if (!currentUser) return alert('Please log in');
-      if (!confirm('Reset budget and all expenses for this account?')) return;
-      budget = 0;
-      expenses = [];
-      saveUserData();
-      updateAllUI();
-    });
-
-    // init
-    showAuth();
   </script>
 </body>
 </html>
