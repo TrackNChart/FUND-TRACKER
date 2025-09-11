@@ -9,7 +9,7 @@
     body {
       min-height: 100vh;
       font-family: Inter, sans-serif;
-      background: url('/mnt/data/095c633f-26a8-4b4e-a3b4-bc128ac428de.png') center/cover fixed no-repeat;
+      background: url('finance.png') center/cover fixed no-repeat; /* <- Use your uploaded wallpaper */
     }
     .overlay {
       background: rgba(255, 255, 255, 0.85);
@@ -231,9 +231,44 @@
 
     function renderExpenses() {
       expenseList.innerHTML = "";
-      expenses.forEach((e) => {
+      expenses.forEach((e, index) => {
         let li = document.createElement("li");
-        li.textContent = `${e.name} - ₱${e.amount.toFixed(2)} (${e.category})`;
+        li.classList.add("flex","justify-between","items-center","bg-gray-100","p-2","rounded");
+
+        li.innerHTML = `
+          <span>${e.name} - ₱${e.amount.toFixed(2)} (${e.category})</span>
+          <div>
+            <button class="edit-btn bg-yellow-400 text-white px-2 py-1 rounded mr-2">Edit</button>
+            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+          </div>
+        `;
+
+        // Delete handler
+        li.querySelector(".delete-btn").addEventListener("click", () => {
+          expenses.splice(index, 1);
+          categories[e.category] -= e.amount;
+          saveUserData();
+          renderExpenses();
+          updateSummary();
+        });
+
+        // Edit handler
+        li.querySelector(".edit-btn").addEventListener("click", () => {
+          let newName = prompt("Edit expense name:", e.name) || e.name;
+          let newAmount = parseFloat(prompt("Edit amount:", e.amount)) || e.amount;
+          let newCategory = prompt("Edit category (Food, Transport, Bills, Shopping, Other):", e.category) || e.category;
+
+          categories[e.category] -= e.amount; // remove old
+          e.name = newName;
+          e.amount = newAmount;
+          e.category = newCategory;
+          categories[newCategory] += newAmount; // add new
+
+          saveUserData();
+          renderExpenses();
+          updateSummary();
+        });
+
         expenseList.appendChild(li);
       });
     }
