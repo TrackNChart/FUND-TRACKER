@@ -260,7 +260,7 @@
       }
       document.getElementById("printOrgName").textContent = signatories.orgName || "Organization Fund Report";
       document.getElementById("printReportPeriod").textContent = (signatories.reportStart && signatories.reportEnd) 
-        ? Report Period: ${signatories.reportStart} to ${signatories.reportEnd} 
+        ? `Report Period: ${signatories.reportStart} to ${signatories.reportEnd}` 
         : "";
       document.getElementById("printTotalFund").textContent = "₱" + totalFund.toFixed(2);
       document.getElementById("printTotalExpenses").textContent = "₱" + totalExpenses.toFixed(2);
