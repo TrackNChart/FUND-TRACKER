@@ -1,395 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Organization Fund Tracker</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-body {
-  background-image: url('https://images.unsplash.com/photo-1581090700227-6c8c2e3d6a44?auto=format&fit=crop&w=1950&q=80');
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  font-family: sans-serif;
-}
-
-/* Glass sections */
-#entriesSection, #addEntrySection, #signatoriesSection, #authSection, #appSection, .grid > div {
-  background-color: rgba(255,255,255,0.85);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-/* Dashboard card hover */
-.grid > div:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-}
-
-/* Text colors */
-.text-green-600 { color: #16a34a; font-weight: 700; }
-.text-red-600 { color: #dc2626; font-weight: 700; }
-.text-blue-600 { color: #2563eb; font-weight: 700; }
-.text-purple-600 { color: #7c3aed; font-weight: 700; }
-
-/* Buttons style */
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-weight: 600;
-}
-button:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  transition: 0.2s;
-}
-
-/* Table styling */
-table {
-  border-collapse: collapse;
-  width: 100%;
-  background-color: rgba(255,255,255,0.9);
-}
-th, td {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-}
-thead th {
-  background-color: rgba(0,0,0,0.05);
-}
-
-/* Logo preview */
-#logoPreview {
-  max-height: 80px;
-  margin-top: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/* Print styles */
-@media print {
-  body * { visibility: hidden; }
-  #printSection, #printSection * { visibility: visible; }
-  #printSection { position: absolute; left: 0; top: 0; width: 100%; }
-  #printBtn { display: none; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organization Fund Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printSection, #printSection * { visibility: visible; }
+      #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+      #printBtn { display: none; }
+    }
+    #logoPreview { max-height: 80px; margin-top: 10px; }
+  </style>
 </head>
-<body class="p-6 bg-gray-100 bg-opacity-50">
+<body class="bg-gray-100 p-6">
 
-<div class="max-w-6xl mx-auto">
-
-  <!-- AUTH SECTION -->
-  <div id="authSection">
-    <div id="loginForm">
-      <h2 class="text-xl font-bold mb-4">Login</h2>
-      <form id="login" class="space-y-4">
-        <input type="text" id="loginUser" placeholder="Username" class="border rounded-lg p-2 w-full" required>
-        <input type="password" id="loginPass" placeholder="Password" class="border rounded-lg p-2 w-full" required>
-        <button type="submit" class="bg-blue-600 text-white w-full">Login</button>
-      </form>
-      <p class="mt-2 text-sm">Don't have an account? <a href="#" onclick="showSignup()" class="text-blue-600">Sign Up</a></p>
-    </div>
-    <div id="signupForm" class="hidden">
-      <h2 class="text-xl font-bold mb-4">Sign Up</h2>
-      <form id="signup" class="space-y-4">
-        <input type="text" id="signupUser" placeholder="Username" class="border rounded-lg p-2 w-full" required>
-        <input type="password" id="signupPass" placeholder="Password" class="border rounded-lg p-2 w-full" required>
-        <button type="submit" class="bg-green-600 text-white w-full">Sign Up</button>
-      </form>
-      <p class="mt-2 text-sm">Already have an account? <a href="#" onclick="showLogin()" class="text-blue-600">Login</a></p>
-    </div>
+  <!-- LOGIN / SIGNUP -->
+  <div id="authSection" class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow">
+    <h2 class="text-xl font-bold mb-4 text-center">Login / Signup</h2>
+    <form id="authForm" class="space-y-4">
+      <input type="text" id="username" placeholder="Username" class="border p-2 rounded w-full" required>
+      <input type="password" id="password" placeholder="Password" class="border p-2 rounded w-full" required>
+      <div class="flex space-x-2">
+        <button type="button" onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded-lg w-1/2">Login</button>
+        <button type="button" onclick="signup()" class="bg-green-600 text-white px-4 py-2 rounded-lg w-1/2">Signup</button>
+      </div>
+    </form>
   </div>
 
-  <!-- APP SECTION -->
-  <div id="appSection" class="hidden">
-
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-2xl font-bold">Organization Fund Tracker</h1>
-      <button onclick="logout()" class="bg-red-600 text-white">Logout</button>
-    </div>
-
-    <!-- Dashboard -->
+  <!-- DASHBOARD -->
+  <div id="appSection" class="max-w-6xl mx-auto hidden">
+    <!-- Dashboard Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <div>
+      <div class="bg-white p-6 rounded-2xl shadow">
         <h2 class="text-lg font-semibold">Total Fund</h2>
-        <p id="totalFund" class="text-2xl text-green-600">₱0.00</p>
+        <p id="totalFund" class="text-2xl font-bold text-green-600">₱0.00</p>
       </div>
-      <div>
+      <div class="bg-white p-6 rounded-2xl shadow">
         <h2 class="text-lg font-semibold">Total Expenses</h2>
-        <p id="totalExpenses" class="text-2xl text-red-600">₱0.00</p>
+        <p id="totalExpenses" class="text-2xl font-bold text-red-600">₱0.00</p>
       </div>
-      <div>
+      <div class="bg-white p-6 rounded-2xl shadow">
         <h2 class="text-lg font-semibold">Net Balance</h2>
-        <p id="netBalance" class="text-2xl text-blue-600">₱0.00</p>
+        <p id="netBalance" class="text-2xl font-bold text-blue-600">₱0.00</p>
       </div>
-      <div>
+      <div class="bg-white p-6 rounded-2xl shadow">
         <h2 class="text-lg font-semibold">Total Entries</h2>
-        <p id="totalEntries" class="text-2xl text-purple-600">0</p>
+        <p id="totalEntries" class="text-2xl font-bold text-purple-600">0</p>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="flex space-x-4 border-b mb-6">
-      <button onclick="showSection('entries')" class="py-2 px-4 border-b-2 border-blue-600 font-medium">Financial Entries</button>
-      <button onclick="showSection('addEntry')" class="py-2 px-4">Add Entry</button>
-      <button onclick="showSection('signatories')" class="py-2 px-4">Signatories</button>
+      <button id="tabEntries" onclick="showSection('entries')" class="py-2 px-4 border-b-2 border-blue-600 font-medium">Financial Entries</button>
+      <button id="tabAdd" onclick="showSection('addEntry')" class="py-2 px-4">Add Entry</button>
+      <button id="tabSignatories" onclick="showSection('signatories')" class="py-2 px-4">Signatories</button>
     </div>
 
-    <!-- Financial Entries Section -->
-    <div id="entriesSection">
+    <!-- Financial Entries -->
+    <div id="entriesSection" class="bg-white p-6 rounded-2xl shadow mb-6">
       <h2 class="text-xl font-semibold mb-4">Financial Entries</h2>
-      <table>
+      <table class="w-full text-left border">
         <thead>
-          <tr>
-            <th>Date</th>
-            <th>OR / Serial No.</th>
-            <th>Type</th>
-            <th>Amount (₱)</th>
+          <tr class="bg-gray-200">
+            <th class="p-2 border">Date</th>
+            <th class="p-2 border">OR/Serial</th>
+            <th class="p-2 border">Description</th>
+            <th class="p-2 border">Type</th>
+            <th class="p-2 border">Amount (₱)</th>
+            <th class="p-2 border">Action</th>
           </tr>
         </thead>
         <tbody id="entriesTable">
-          <tr><td colspan="4" class="text-center p-4 text-gray-500">No financial entries found.</td></tr>
+          <tr>
+            <td colspan="6" class="text-center p-4 text-gray-500">No financial entries found.</td>
+          </tr>
         </tbody>
       </table>
-      <button id="printBtn" onclick="printReport()" class="mt-4 bg-gray-700 text-white">🖨 Print Report</button>
+      <button id="printBtn" onclick="printReport()" class="mt-4 bg-gray-700 text-white px-4 py-2 rounded-lg">🖨 Print Report</button>
     </div>
 
-    <!-- Add Entry Section -->
-    <div id="addEntrySection" class="hidden">
+    <!-- Add Entry -->
+    <div id="addEntrySection" class="bg-white p-6 rounded-2xl shadow mb-6 hidden">
       <h2 class="text-xl font-semibold mb-4">Add Financial Entry</h2>
       <form id="entryForm" class="space-y-4">
         <div>
-          <label>Date</label>
+          <label class="block font-medium">Date</label>
           <input type="date" id="date" class="border rounded-lg p-2 w-full" required>
         </div>
         <div>
-          <label>OR / Serial Number</label>
-          <input type="text" id="serialNumber" placeholder="Enter OR / Serial No." class="border rounded-lg p-2 w-full" required>
+          <label class="block font-medium">OR / Serial Number</label>
+          <input type="text" id="orNumber" placeholder="Enter OR or Serial number" class="border rounded-lg p-2 w-full" required>
         </div>
         <div>
-          <label>Type</label>
+          <label class="block font-medium">Description</label>
+          <input type="text" id="description" placeholder="Enter description" class="border rounded-lg p-2 w-full" required>
+        </div>
+        <div>
+          <label class="block font-medium">Type</label>
           <select id="type" class="border rounded-lg p-2 w-full" required>
             <option value="Fund">Fund (Cash In)</option>
             <option value="Expense">Expense (Cash Out)</option>
           </select>
         </div>
         <div>
-          <label>Amount (₱)</label>
+          <label class="block font-medium">Amount (₱)</label>
           <input type="number" id="amount" class="border rounded-lg p-2 w-full" required>
         </div>
-        <button type="submit" class="bg-blue-600 text-white">Add Entry</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Add Entry</button>
       </form>
     </div>
 
-    <!-- Signatories Section -->
-    <div id="signatoriesSection" class="hidden">
+    <!-- Signatories -->
+    <div id="signatoriesSection" class="bg-white p-6 rounded-2xl shadow mb-6 hidden">
       <h2 class="text-xl font-semibold mb-4">Report Details & Signatories</h2>
       <form id="signatoriesForm" class="space-y-4">
         <div>
-          <label>Organization Logo</label>
+          <label class="block font-medium">Organization Logo</label>
           <input type="file" id="orgLogo" accept="image/*" class="border rounded-lg p-2 w-full">
-          <img id="logoPreview" class="hidden"/>
+          <img id="logoPreview" class="hidden" />
         </div>
         <div>
-          <label>Organization Name</label>
+          <label class="block font-medium">Organization Name</label>
           <input type="text" id="orgName" placeholder="Enter organization name" class="border rounded-lg p-2 w-full">
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label>Report Start Date</label>
+            <label class="block font-medium">Report Start Date</label>
             <input type="date" id="reportStart" class="border rounded-lg p-2 w-full">
           </div>
           <div>
-            <label>Report End Date</label>
+            <label class="block font-medium">Report End Date</label>
             <input type="date" id="reportEnd" class="border rounded-lg p-2 w-full">
           </div>
         </div>
         <div>
-          <label>Prepared by</label>
+          <label class="block font-medium">Prepared by</label>
           <input type="text" id="preparedBy" class="border rounded-lg p-2 w-full">
         </div>
         <div>
-          <label>Audited by</label>
+          <label class="block font-medium">Audited by</label>
           <input type="text" id="auditedBy" class="border rounded-lg p-2 w-full">
         </div>
         <div>
-          <label>Noted by</label>
+          <label class="block font-medium">Noted by</label>
           <input type="text" id="notedBy" class="border rounded-lg p-2 w-full">
         </div>
-        <button type="button" onclick="saveSignatories()" class="bg-green-600 text-white">Save Details</button>
+        <button type="button" onclick="saveSignatories()" class="bg-green-600 text-white px-4 py-2 rounded-lg">Save Details</button>
       </form>
-      <div id="signatoriesDisplay" class="mt-6 hidden">
-        <p><strong>Organization:</strong> <span id="orgNameDisplay"></span></p>
-        <p><strong>Report Period:</strong> <span id="reportPeriodDisplay"></span></p>
-        <p><strong>Prepared by:</strong> <span id="preparedByDisplay"></span></p>
-        <p><strong>Audited by:</strong> <span id="auditedByDisplay"></span></p>
-        <p><strong>Noted by:</strong> <span id="notedByDisplay"></span></p>
-      </div>
     </div>
-
-    <!-- Printable Section -->
-    <div id="printSection" class="hidden">
-      <div class="flex items-center justify-center mb-4">
-        <img id="printLogo" class="h-16 mr-4 hidden"/>
-        <h1 id="printOrgName" class="text-2xl font-bold">Organization Fund Report</h1>
-      </div>
-      <p id="printReportPeriod" class="text-center mb-6"></p>
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <p><strong>Total Fund:</strong> <span id="printTotalFund"></span></p>
-        <p><strong>Total Expenses:</strong> <span id="printTotalExpenses"></span></p>
-        <p><strong>Net Balance:</strong> <span id="printNetBalance"></span></p>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>OR / Serial No.</th>
-            <th>Type</th>
-            <th>Amount (₱)</th>
-          </tr>
-        </thead>
-        <tbody id="printEntries"></tbody>
-      </table>
-      <div class="mt-10">
-        <p><strong>Prepared by:</strong> <span id="printPreparedBy"></span></p>
-        <p><strong>Audited by:</strong> <span id="printAuditedBy"></span></p>
-        <p><strong>Noted by:</strong> <span id="printNotedBy"></span></p>
-      </div>
-    </div>
-
   </div>
-</div>
 
-<script>
-let users = JSON.parse(localStorage.getItem('users') || '{}');
-let currentUser = localStorage.getItem('currentUser') || '';
-let entries = [];
-let totalFund = 0, totalExpenses = 0;
-let signatories = {orgName:'', reportStart:'', reportEnd:'', preparedBy:'', auditedBy:'', notedBy:'', logo:''};
+  <!-- PRINT SECTION -->
+  <div id="printSection" class="hidden p-6">
+    <div class="flex items-center justify-center mb-6">
+      <img id="printLogo" class="h-16 w-16 mr-4">
+      <div class="text-center">
+        <h2 class="text-xl font-bold" id="printOrgName">Organization Name</h2>
+        <p id="printReportPeriod">Report Period</p>
+      </div>
+    </div>
+    <table class="w-full border mb-6">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-2 border">Date</th>
+          <th class="p-2 border">OR/Serial</th>
+          <th class="p-2 border">Description</th>
+          <th class="p-2 border">Type</th>
+          <th class="p-2 border">Amount</th>
+        </tr>
+      </thead>
+      <tbody id="printEntriesTable"></tbody>
+      <tfoot>
+        <tr class="bg-gray-100 font-bold">
+          <td colspan="2" class="p-2 border text-right">TOTAL FUNDS:</td>
+          <td colspan="3" id="printTotalFunds" class="p-2 border text-green-600"></td>
+        </tr>
+        <tr class="bg-gray-100 font-bold">
+          <td colspan="2" class="p-2 border text-right">TOTAL EXPENSES:</td>
+          <td colspan="3" id="printTotalExpenses" class="p-2 border text-red-600"></td>
+        </tr>
+        <tr class="bg-gray-100 font-bold">
+          <td colspan="2" class="p-2 border text-right">NET BALANCE:</td>
+          <td colspan="3" id="printNetBalance" class="p-2 border text-blue-600"></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="mt-10 flex justify-between text-center">
+      <div><p>Prepared by:</p><span id="printPreparedBy"></span></div>
+      <div><p>Audited by:</p><span id="printAuditedBy"></span></div>
+      <div><p>Noted by:</p><span id="printNotedBy"></span></div>
+    </div>
+  </div>
 
-function showSignup(){ document.getElementById('loginForm').classList.add('hidden'); document.getElementById('signupForm').classList.remove('hidden'); }
-function showLogin(){ document.getElementById('signupForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); }
-function showSection(section){
-  document.getElementById('entriesSection').classList.add('hidden');
-  document.getElementById('addEntrySection').classList.add('hidden');
-  document.getElementById('signatoriesSection').classList.add('hidden');
-  if(section==='entries') document.getElementById('entriesSection').classList.remove('hidden');
-  if(section==='addEntry') document.getElementById('addEntrySection').classList.remove('hidden');
-  if(section==='signatories') document.getElementById('signatoriesSection').classList.remove('hidden');
-}
+  <script>
+    let currentUser = null;
+    let totalFund = 0, totalExpenses = 0;
+    let entries = [];
+    let signatories = { orgName: "", reportStart: "", reportEnd: "", preparedBy: "", auditedBy: "", notedBy: "", logo: "" };
 
-/* --- Login --- */
-document.getElementById('login').addEventListener('submit', function(e){
-  e.preventDefault();
-  let u = document.getElementById('loginUser').value;
-  let p = document.getElementById('loginPass').value;
-  if(users[u] && users[u].password===p){ currentUser=u; localStorage.setItem('currentUser', u); loadApp(); } 
-  else{ alert('Invalid login'); }
-});
+    // ---------------- AUTH ----------------
+    function signup() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (localStorage.getItem("user_" + user)) return alert("User already exists!");
+      localStorage.setItem("user_" + user, JSON.stringify({ password: pass, entries: [], signatories: {} }));
+      alert("Signup successful! Please login.");
+    }
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      const data = JSON.parse(localStorage.getItem("user_" + user));
+      if (!data || data.password !== pass) return alert("Invalid credentials!");
+      currentUser = user;
+      entries = data.entries || [];
+      signatories = data.signatories || signatories;
+      updateDashboard();
+      updateTable();
+      document.getElementById("authSection").classList.add("hidden");
+      document.getElementById("appSection").classList.remove("hidden");
+    }
+    function saveUserData() {
+      if (currentUser) {
+        localStorage.setItem("user_" + currentUser, JSON.stringify({ password: JSON.parse(localStorage.getItem("user_" + currentUser)).password, entries, signatories }));
+      }
+    }
 
-/* --- Signup --- */
-document.getElementById('signup').addEventListener('submit', function(e){
-  e.preventDefault();
-  let u = document.getElementById('signupUser').value;
-  let p = document.getElementById('signupPass').value;
-  if(users[u]){ alert('User exists'); return; }
-  users[u]={password:p, entries:[], signatories:{}}; localStorage.setItem('users', JSON.stringify(users));
-  alert('Account created!'); showLogin();
-});
+    // ---------------- ENTRIES ----------------
+    document.getElementById("entryForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const date = document.getElementById("date").value;
+      const orNumber = document.getElementById("orNumber").value;
+      const description = document.getElementById("description").value;
+      const type = document.getElementById("type").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const newEntry = { date, orNumber, description, type, amount };
+      entries.push(newEntry);
+      if (type === "Fund") totalFund += amount; else totalExpenses += amount;
+      updateDashboard();
+      updateTable();
+      saveUserData();
+      document.getElementById("entryForm").reset();
+      showSection("entries");
+    });
 
-/* --- Logout --- */
-function logout(){ currentUser=''; localStorage.removeItem('currentUser'); location.reload(); }
+    function deleteEntry(index) {
+      const entry = entries[index];
+      if (entry.type === "Fund") totalFund -= entry.amount; else totalExpenses -= entry.amount;
+      entries.splice(index, 1);
+      updateDashboard();
+      updateTable();
+      saveUserData();
+    }
 
-/* --- Load App --- */
-function loadApp(){
-  document.getElementById('authSection').classList.add('hidden');
-  document.getElementById('appSection').classList.remove('hidden');
-  entries = users[currentUser].entries || [];
-  signatories = users[currentUser].signatories || signatories;
-  updateTotals(); updateTable(); loadSignatories();
-}
+    function updateDashboard() {
+      const netBalance = totalFund - totalExpenses;
+      document.getElementById("totalFund").textContent = "₱" + totalFund.toFixed(2);
+      document.getElementById("totalExpenses").textContent = "₱" + totalExpenses.toFixed(2);
+      document.getElementById("netBalance").textContent = "₱" + netBalance.toFixed(2);
+      document.getElementById("totalEntries").textContent = entries.length;
+    }
 
-function updateTotals(){
-  totalFund = entries.filter(e=>e.type==='Fund').reduce((a,b)=>a+b.amount,0);
-  totalExpenses = entries.filter(e=>e.type==='Expense').reduce((a,b)=>a+b.amount,0);
-  document.getElementById('totalFund').textContent='₱'+totalFund.toFixed(2);
-  document.getElementById('totalExpenses').textContent='₱'+totalExpenses.toFixed(2);
-  document.getElementById('netBalance').textContent='₱'+(totalFund-totalExpenses).toFixed(2);
-  document.getElementById('totalEntries').textContent=entries.length;
-}
+    function updateTable() {
+      const table = document.getElementById("entriesTable");
+      if (entries.length === 0) {
+        table.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">No financial entries found.</td></tr>';
+        return;
+      }
+      table.innerHTML = "";
+      entries.forEach((entry, i) => {
+        table.innerHTML += `<tr>
+          <td class="border p-2">${entry.date}</td>
+          <td class="border p-2">${entry.orNumber}</td>
+          <td class="border p-2">${entry.description}</td>
+          <td class="border p-2">${entry.type}</td>
+          <td class="border p-2">₱${entry.amount.toFixed(2)}</td>
+          <td class="border p-2 text-center"><button onclick="deleteEntry(${i})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button></td>
+        </tr>`;
+      });
+    }
 
-/* --- Entries --- */
-document.getElementById('entryForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  let date=document.getElementById('date').value;
-  let serial=document.getElementById('serialNumber').value;
-  let type=document.getElementById('type').value;
-  let amount=parseFloat(document.getElementById('amount').value);
-  let newEntry={date, serial, type, amount};
-  entries.push(newEntry);
-  users[currentUser].entries = entries; localStorage.setItem('users', JSON.stringify(users));
-  updateTotals(); updateTable();
-  document.getElementById('entryForm').reset();
-  showSection('entries');
-});
+    // ---------------- SIGNATORIES ----------------
+    document.getElementById("orgLogo").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          signatories.logo = e.target.result;
+          document.getElementById("logoPreview").src = e.target.result;
+          document.getElementById("logoPreview").classList.remove("hidden");
+          saveUserData();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    function saveSignatories() {
+      signatories.orgName = document.getElementById("orgName").value;
+      signatories.reportStart = document.getElementById("reportStart").value;
+      signatories.reportEnd = document.getElementById("reportEnd").value;
+      signatories.preparedBy = document.getElementById("preparedBy").value;
+      signatories.auditedBy = document.getElementById("auditedBy").value;
+      signatories.notedBy = document.getElementById("notedBy").value;
+      saveUserData();
+      alert("Signatories saved!");
+    }
 
-function updateTable(){
-  const t = document.getElementById('entriesTable'); t.innerHTML='';
-  if(entries.length===0){ t.innerHTML='<tr><td colspan="4" class="text-center p-4 text-gray-500">No financial entries found.</td></tr>'; return; }
-  entries.forEach(e=>{ t.innerHTML+=`<tr><td>${e.date}</td><td>${e.serial}</td><td>${e.type}</td><td>₱${e.amount.toFixed(2)}</td></tr>`; });
-}
+    // ---------------- PRINT ----------------
+    function printReport() {
+      document.getElementById("printOrgName").textContent = signatories.orgName || "Organization Name";
+      document.getElementById("printReportPeriod").textContent =
+        (signatories.reportStart || "Start") + " to " + (signatories.reportEnd || "End");
+      document.getElementById("printPreparedBy").textContent = signatories.preparedBy || "";
+      document.getElementById("printAuditedBy").textContent = signatories.auditedBy || "";
+      document.getElementById("printNotedBy").textContent = signatories.notedBy || "";
+      if (signatories.logo) document.getElementById("printLogo").src = signatories.logo;
 
-/* --- Signatories --- */
-document.getElementById('orgLogo').addEventListener('change', function(e){
-  const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=function(ev){ signatories.logo=ev.target.result; document.getElementById('logoPreview').src=ev.target.result; document.getElementById('logoPreview').classList.remove('hidden'); }; r.readAsDataURL(f);}
-});
-function saveSignatories(){
-  signatories.orgName=document.getElementById('orgName').value;
-  signatories.reportStart=document.getElementById('reportStart').value;
-  signatories.reportEnd=document.getElementById('reportEnd').value;
-  signatories.preparedBy=document.getElementById('preparedBy').value;
-  signatories.auditedBy=document.getElementById('auditedBy').value;
-  signatories.notedBy=document.getElementById('notedBy').value;
-  document.getElementById('orgNameDisplay').textContent=signatories.orgName;
-  document.getElementById('reportPeriodDisplay').textContent=signatories.reportStart+' to '+signatories.reportEnd;
-  document.getElementById('preparedByDisplay').textContent=signatories.preparedBy;
-  document.getElementById('auditedByDisplay').textContent=signatories.auditedBy;
-  document.getElementById('notedByDisplay').textContent=signatories.notedBy;
-  document.getElementById('signatoriesDisplay').classList.remove('hidden');
-  users[currentUser].signatories=signatories; localStorage.setItem('users', JSON.stringify(users));
-}
+      const printTable = document.getElementById("printEntriesTable");
+      printTable.innerHTML = "";
+      entries.forEach(entry => {
+        printTable.innerHTML += `<tr>
+          <td class="border p-2">${entry.date}</td>
+          <td class="border p-2">${entry.orNumber}</td>
+          <td class="border p-2">${entry.description}</td>
+          <td class="border p-2">${entry.type}</td>
+          <td class="border p-2">₱${entry.amount.toFixed(2)}</td>
+        </tr>`;
+      });
 
-function loadSignatories(){
-  if(signatories.orgName){ document.getElementById('orgNameDisplay').textContent=signatories.orgName; document.getElementById('reportPeriodDisplay').textContent=signatories.reportStart+' to '+signatories.reportEnd; document.getElementById('preparedByDisplay').textContent=signatories.preparedBy; document.getElementById('auditedByDisplay').textContent=signatories.auditedBy; document.getElementById('notedByDisplay').textContent=signatories.notedBy; document.getElementById('signatoriesDisplay').classList.remove('hidden'); }
-}
+      document.getElementById("printTotalFunds").textContent = "₱" + totalFund.toFixed(2);
+      document.getElementById("printTotalExpenses").textContent = "₱" + totalExpenses.toFixed(2);
+      document.getElementById("printNetBalance").textContent = "₱" + (totalFund - totalExpenses).toFixed(2);
 
-/* --- Print --- */
-function printReport(){
-  if(signatories.logo){ document.getElementById('printLogo').src=signatories.logo; document.getElementById('printLogo').classList.remove('hidden'); }
-  document.getElementById('printOrgName').textContent=signatories.orgName || 'Organization Fund Report';
-  document.getElementById('printReportPeriod').textContent=(signatories.reportStart && signatories.reportEnd)?'Report Period: '+signatories.reportStart+' to '+signatories.reportEnd:'';
-  document.getElementById('printTotalFund').textContent='₱'+totalFund.toFixed(2);
-  document.getElementById('printTotalExpenses').textContent='₱'+totalExpenses.toFixed(2);
-  document.getElementById('printNetBalance').textContent='₱'+(totalFund-totalExpenses).toFixed(2);
-  let pt=document.getElementById('printEntries'); pt.innerHTML='';
-  entries.forEach(e=>{ pt.innerHTML+=`<tr><td>${e.date}</td><td>${e.serial}</td><td>${e.type}</td><td>₱${e.amount.toFixed(2)}</td></tr>`; });
-  document.getElementById('printPreparedBy').textContent=signatories.preparedBy;
-  document.getElementById('printAuditedBy').textContent=signatories.auditedBy;
-  document.getElementById('printNotedBy').textContent=signatories.notedBy;
-  window.print();
-}
+      window.print();
+    }
 
-/* --- Auto load if user logged in --- */
-if(currentUser){ loadApp(); }
+    // ---------------- NAVIGATION ----------------
+    function showSection(section) {
+      document.getElementById("entriesSection").classList.add("hidden");
+      document.getElementById("addEntrySection").classList.add("hidden");
+      document.getElementById("signatoriesSection").classList.add("hidden");
+      document.getElementById("tabEntries").classList.remove("border-blue-600");
+      document.getElementById("tabAdd").classList.remove("border-blue-600");
+      document.getElementById("tabSignatories").classList.remove("border-blue-600");
 
-</script>
+      if (section === "entries") {
+        document.getElementById("entriesSection").classList.remove("hidden");
+        document.getElementById("tabEntries").classList.add("border-blue-600");
+      } else if (section === "addEntry") {
+        document.getElementById("addEntrySection").classList.remove("hidden");
+        document.getElementById("tabAdd").classList.add("border-blue-600");
+      } else {
+        document.getElementById("signatoriesSection").classList.remove("hidden");
+        document.getElementById("tabSignatories").classList.add("border-blue-600");
+      }
+    }
+  </script>
 </body>
 </html>
