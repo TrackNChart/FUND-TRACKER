@@ -1,294 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fund Tracker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UNC Study Habit & Performance Tracker (v2 - Fixed)</title>
   <style>
-    body {
-      background-image: url('https://images.unsplash.com/photo-1581091215365-0f0d86f27f5b?fit=crop&w=1950&q=80');
-      background-size: cover;
-      background-attachment: fixed;
-    }
-    @media print {
-      body * { visibility: hidden; }
-      #printSection, #printSection * { visibility: visible; }
-      #printSection { position: absolute; left: 0; top: 0; width: 100%; }
-      #printBtn { display: none; }
-    }
-    #logoPreview { max-height: 80px; margin-top: 10px; }
+    :root{--red:#b30000;--red-dark:#800000;--gray:#f2f2f2;--card:#fff;--muted:#666}
+    *{box-sizing:border-box}
+    body{font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,var(--gray),#fff);margin:0;padding:20px;display:flex;justify-content:center}
+    .app{width:100%;max-width:920px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:16px}
+    h1{color:var(--red);margin:0 0 8px 0}
+    label{display:block;font-weight:600;margin:8px 0 6px}
+    input, select{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    button{background:var(--red);color:#fff;border:none;padding:10px 12px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#777}
+    .result-box{border-radius:10px;padding:12px;margin-top:12px;background:#f5f5f5}
+    .pass{color:#006600;font-weight:700}
+    .fail{color:var(--red);font-weight:700}
+    .history-item{background:#fafafa;border:1px solid #eee;padding:10px;border-radius:8px;margin-bottom:8px}
+    .controls{display:flex;gap:8px}
+    @media (max-width:760px){.row{flex-direction:column}}
   </style>
 </head>
-<body class="p-6">
-<div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+<body>
+  <div class="app">
 
-  <!-- LOGIN / SIGNUP -->
-  <div id="authSection">
-    <h2 class="text-2xl font-bold mb-4">Login or Signup</h2>
-    <form id="loginForm" class="space-y-4">
-      <input type="text" id="username" placeholder="Username" class="border rounded-lg p-2 w-full" required>
-      <input type="password" id="password" placeholder="Password" class="border rounded-lg p-2 w-full" required>
-      <div class="flex space-x-4">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Login</button>
-        <button type="button" id="signupBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg">Signup</button>
+    <!-- LOGIN -->
+    <div class="card" id="loginCard">
+      <h1>UNC Login</h1>
+      <p><small>Sign in with your UNC email (examples: <em>@unc.edu.ph</em> or <em>@students.unc.edu.ph</em>). The app stores your session and history locally in your browser.</small></p>
+      <div class="row">
+        <div class="col">
+          <label for="emailInput">UNC Email</label>
+          <input id="emailInput" type="email" placeholder="example@unc.edu.ph" />
+        </div>
+        <div style="width:150px;display:flex;align-items:end;">
+          <button onclick="handleLogin()">Sign in</button>
+        </div>
       </div>
-    </form>
-    <p id="authMsg" class="text-red-600 mt-2"></p>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="hidden">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Organization Fund Tracker</h2>
-      <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg">Logout</button>
+      <p id="loginMsg" style="color:var(--red);margin-top:8px;display:none"></p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h2 class="text-lg font-semibold">Total Fund</h2>
-        <p id="totalFund" class="text-2xl font-bold text-green-600">₱0.00</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h2 class="text-lg font-semibold">Total Expenses</h2>
-        <p id="totalExpenses" class="text-2xl font-bold text-red-600">₱0.00</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h2 class="text-lg font-semibold">Net Balance</h2>
-        <p id="netBalance" class="text-2xl font-bold text-blue-600">₱0.00</p>
-      </div>
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h2 class="text-lg font-semibold">Total Entries</h2>
-        <p id="totalEntries" class="text-2xl font-bold text-purple-600">0</p>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="flex space-x-4 border-b mb-6">
-      <button onclick="showSection('entries')" class="py-2 px-4 border-b-2 border-blue-600 font-medium">Financial Entries</button>
-      <button onclick="showSection('addEntry')" class="py-2 px-4">Add Entry</button>
-      <button onclick="showSection('signatories')" class="py-2 px-4">Signatories</button>
-    </div>
-
-    <!-- Financial Entries -->
-    <div id="entriesSection" class="bg-white p-6 rounded-2xl shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Financial Entries</h2>
-      <table class="w-full text-left border">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="p-2 border">Date</th>
-            <th class="p-2 border">OR / Serial</th>
-            <th class="p-2 border">Type</th>
-            <th class="p-2 border">Amount (₱)</th>
-            <th class="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="entriesTable">
-          <tr>
-            <td colspan="5" class="text-center p-4 text-gray-500">No financial entries found.</td>
-          </tr>
-        </tbody>
-      </table>
-      <button id="printBtn" onclick="printReport()" class="mt-4 bg-gray-700 text-white px-4 py-2 rounded-lg">🖨 Print Report</button>
-    </div>
-
-    <!-- Add Entry -->
-    <div id="addEntrySection" class="bg-white p-6 rounded-2xl shadow mb-6 hidden">
-      <h2 class="text-xl font-semibold mb-4">Add Financial Entry</h2>
-      <form id="entryForm" class="space-y-4">
+    <!-- MAIN APP -->
+    <div class="card" id="mainCard" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <label class="block font-medium">Date</label>
-          <input type="date" id="date" class="border rounded-lg p-2 w-full" required>
+          <h1>Study Habit & Performance</h1>
+          <div id="welcomeSmall" style="font-size:13px;color:var(--muted)"></div>
         </div>
-        <div>
-          <label class="block font-medium">OR / Serial Number</label>
-          <input type="text" id="serial" placeholder="Enter OR / Serial" class="border rounded-lg p-2 w-full">
-        </div>
-        <div>
-          <label class="block font-medium">Type</label>
-          <select id="type" class="border rounded-lg p-2 w-full" required>
-            <option value="Fund">Fund (Cash In)</option>
-            <option value="Expense">Expense (Cash Out)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block font-medium">Amount (₱)</label>
-          <input type="number" id="amount" class="border rounded-lg p-2 w-full" required>
-        </div>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Add Entry</button>
-      </form>
-    </div>
-
-    <!-- Signatories -->
-    <div id="signatoriesSection" class="bg-white p-6 rounded-2xl shadow mb-6 hidden">
-      <h2 class="text-xl font-semibold mb-4">Report Details & Signatories</h2>
-      <form id="signatoriesForm" class="space-y-4">
-        <div>
-          <label class="block font-medium">Organization Logo</label>
-          <input type="file" id="orgLogo" accept="image/*" class="border rounded-lg p-2 w-full">
-          <img id="logoPreview" class="hidden" />
-        </div>
-        <div>
-          <label class="block font-medium">Organization Name</label>
-          <input type="text" id="orgName" placeholder="Enter organization name" class="border rounded-lg p-2 w-full">
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-medium">Report Start Date</label>
-            <input type="date" id="reportStart" class="border rounded-lg p-2 w-full">
-          </div>
-          <div>
-            <label class="block font-medium">Report End Date</label>
-            <input type="date" id="reportEnd" class="border rounded-lg p-2 w-full">
+        <div style="text-align:right">
+          <div id="lastLoginSmall" style="font-size:13px;color:var(--muted)"></div>
+          <div class="controls" style="margin-top:8px;justify-content:flex-end">
+            <button class="secondary" onclick="handleLogout()">Logout</button>
+            <button class="secondary" onclick="clearUserHistory()">Clear My History</button>
           </div>
         </div>
-        <div>
-          <label class="block font-medium">Prepared by</label>
-          <input type="text" id="preparedBy" placeholder="Name of preparer" class="border rounded-lg p-2 w-full">
+      </div>
+
+      <!-- FORM -->
+      <div style="margin-top:12px">
+        <div class="row">
+          <div class="col">
+            <label for="habit">Study Habit</label>
+            <select id="habit">
+              <option>Ordinary Habit</option>
+              <option>Reading Notes</option>
+              <option>Problem Solving</option>
+              <option>Audio Hearing</option>
+              <option>Flip Cards</option>
+            </select>
+          </div>
+          <div style="width:160px">
+            <label for="hours">Study Hours</label>
+            <input id="hours" type="number" min="0" step="0.25" placeholder="e.g., 2" />
+          </div>
         </div>
-        <div>
-          <label class="block font-medium">Audited by</label>
-          <input type="text" id="auditedBy" placeholder="Name of auditor" class="border rounded-lg p-2 w-full">
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid #eee" />
+
+        <div style="font-weight:700;margin-bottom:6px">Quiz (optional)</div>
+        <div class="row">
+          <div class="col">
+            <label for="quizRaw">Quiz Raw Score</label>
+            <input id="quizRaw" type="number" min="0" placeholder="e.g., 14" />
+          </div>
+          <div style="width:160px">
+            <label for="quizTotal">Quiz Total Items</label>
+            <input id="quizTotal" type="number" min="1" placeholder="e.g., 20" />
+          </div>
         </div>
-        <div>
-          <label class="block font-medium">Noted by</label>
-          <input type="text" id="notedBy" placeholder="Name of notary/approver" class="border rounded-lg p-2 w-full">
+
+        <div style="height:10px"></div>
+
+        <div style="font-weight:700;margin-bottom:6px">Exam (optional)</div>
+        <div class="row">
+          <div class="col">
+            <label for="examRaw">Exam Raw Score</label>
+            <input id="examRaw" type="number" min="0" placeholder="e.g., 42" />
+          </div>
+          <div style="width:160px">
+            <label for="examTotal">Exam Total Items</label>
+            <input id="examTotal" type="number" min="1" placeholder="e.g., 50" />
+          </div>
         </div>
-        <button type="button" onclick="saveSignatories()" class="bg-green-600 text-white px-4 py-2 rounded-lg">Save Details</button>
-      </form>
+
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <div class="col">
+            <label for="passing">Passing Percentage (%)</label>
+            <input id="passing" type="number" min="1" max="100" placeholder="Default: 60" />
+          </div>
+          <div style="width:160px;display:flex;align-items:end">
+            <button onclick="handleSubmit()">Evaluate & Save</button>
+          </div>
+        </div>
+
+        <div id="output"></div>
+      </div>
     </div>
+
+    <!-- HISTORY -->
+    <div class="card" id="historyCard" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><h2 style="margin:0;color:var(--red);font-size:18px">My Assessment History</h2></div>
+        <div><small id="historyCount" style="color:var(--muted)"></small></div>
+      </div>
+      <div id="historyList" style="margin-top:12px"></div>
+    </div>
+
+    <p style="text-align:center;color:var(--muted);font-size:13px">Prototype — data stored locally. Use Logout to switch user.</p>
+
   </div>
 
-  <!-- Printable Section -->
-  <div id="printSection" class="hidden"></div>
-</div>
+  <script>
+    // utilities
+    const UNC_RE = /@(?:[a-z0-9-]+\.)*unc\.edu\.ph$/i;
+    const HISTORY_KEY = 'assessmentHistory_v2';
 
-<script>
-let currentUser = null;
-let users = JSON.parse(localStorage.getItem('users') || '{}');
-let entries = [];
-let signatories = {};
+    function $(id){ return document.getElementById(id); }
+    function nowStr(){ return new Date().toLocaleString(); }
+    function round2(v){ return Math.round(v*100)/100; }
 
-// AUTH
-function showDashboard(){ document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); loadUserData(); updateDashboard(); updateTable(); }
-function saveUsers(){ localStorage.setItem('users', JSON.stringify(users)); }
-function logout(){ currentUser=null; document.getElementById('dashboard').classList.add('hidden'); document.getElementById('authSection').classList.remove('hidden'); }
+    // on load
+    window.addEventListener('load', ()=>{
+      const email = localStorage.getItem('uncEmail');
+      if(email) showMain();
+    });
 
-document.getElementById('loginForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const username=document.getElementById('username').value;
-  const password=document.getElementById('password').value;
-  if(users[username] && users[username].password===password){ currentUser=username; showDashboard(); } 
-  else { document.getElementById('authMsg').textContent='Invalid credentials'; }
-});
+    // login
+    function handleLogin(){
+      const raw = ($('emailInput').value || '').trim();
+      const email = raw.toLowerCase();
+      const msg = $('loginMsg'); msg.style.display = 'none'; msg.textContent = '';
+      if(!email){ msg.style.display='block'; msg.textContent='Please enter your email.'; return; }
+      if(!UNC_RE.test(email)){
+        msg.style.display='block'; msg.textContent='Please sign in with a valid UNC email (e.g. user@unc.edu.ph).';
+        return;
+      }
+      localStorage.setItem('uncEmail', email);
+      localStorage.setItem('lastLogin', nowStr());
+      showMain();
+    }
 
-document.getElementById('signupBtn').addEventListener('click', function(){
-  const username=document.getElementById('username').value;
-  const password=document.getElementById('password').value;
-  if(users[username]){ document.getElementById('authMsg').textContent='Username exists'; }
-  else { users[username]={password,entries:[],signatories:{}}; saveUsers(); document.getElementById('authMsg').textContent='Account created! Login.'; }
-});
+    function handleLogout(){
+      localStorage.removeItem('uncEmail');
+      // keep history but reload to show login
+      location.reload();
+    }
 
-// Load User Data
-function loadUserData(){
-  if(currentUser){
-    entries=users[currentUser].entries || [];
-    signatories=users[currentUser].signatories || {};
-  }
-}
+    // show app
+    function showMain(){
+      const email = localStorage.getItem('uncEmail');
+      if(!email) return;
+      $('loginCard').style.display = 'none';
+      $('mainCard').style.display = 'block';
+      $('historyCard').style.display = 'block';
+      $('welcomeSmall').textContent = email;
+      $('lastLoginSmall').textContent = 'Signed: ' + (localStorage.getItem('lastLogin') || nowStr());
+      loadHistory();
+    }
 
-// Dashboard & Table
-function updateDashboard(){
-  const totalFund=entries.filter(e=>e.type==='Fund').reduce((a,b)=>a+b.amount,0);
-  const totalExpenses=entries.filter(e=>e.type==='Expense').reduce((a,b)=>a+b.amount,0);
-  document.getElementById('totalFund').textContent=`₱${totalFund.toFixed(2)}`;
-  document.getElementById('totalExpenses').textContent=`₱${totalExpenses.toFixed(2)}`;
-  document.getElementById('netBalance').textContent=`₱${(totalFund-totalExpenses).toFixed(2)}`;
-  document.getElementById('totalEntries').textContent=entries.length;
-}
-function updateTable(){
-  const table=document.getElementById('entriesTable'); table.innerHTML='';
-  if(entries.length===0){ table.innerHTML='<tr><td colspan="5" class="text-center p-4 text-gray-500">No financial entries found.</td></tr>'; return; }
-  entries.forEach((e,i)=>{
-    table.innerHTML+=`<tr>
-      <td class="border p-2">${e.date}</td>
-      <td class="border p-2">${e.serial || ''}</td>
-      <td class="border p-2">${e.type}</td>
-      <td class="border p-2">₱${e.amount.toFixed(2)}</td>
-      <td class="border p-2">
-        <button onclick="editEntry(${i})" class="bg-yellow-400 px-2 rounded">Edit</button>
-        <button onclick="deleteEntry(${i})" class="bg-red-600 text-white px-2 rounded">Delete</button>
-      </td>
-    </tr>`;
-  });
-}
+    // submit / evaluate
+    function handleSubmit(){
+      const habit = $('habit').value;
+      const hours = parseFloat($('hours').value) || 0;
+      const quizRawStr = ($('quizRaw').value || '').trim();
+      const quizTotalStr = ($('quizTotal').value || '').trim();
+      const examRawStr = ($('examRaw').value || '').trim();
+      const examTotalStr = ($('examTotal').value || '').trim();
+      const passingStr = ($('passing').value || '').trim();
 
-// Show section
-function showSection(section){
-  document.getElementById('entriesSection').classList.add('hidden');
-  document.getElementById('addEntrySection').classList.add('hidden');
-  document.getElementById('signatoriesSection').classList.add('hidden');
-  document.getElementById(section+'Section').classList.remove('hidden');
-}
+      const passing = passingStr === '' ? 60 : parseFloat(passingStr);
+      if(isNaN(passing) || passing <= 0 || passing > 100){ alert('Please enter a valid passing percentage (1-100).'); return; }
 
-// Entry Form
-document.getElementById('entryForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const date=document.getElementById('date').value;
-  const type=document.getElementById('type').value;
-  const amount=parseFloat(document.getElementById('amount').value);
-  const serial=document.getElementById('serial').value;
-  entries.push({date,type,amount,serial});
-  users[currentUser].entries=entries; saveUsers(); updateDashboard(); updateTable();
-  this.reset(); showSection('entries');
-});
+      const hasQuiz = quizRawStr !== '' || quizTotalStr !== '';
+      const hasExam = examRawStr !== '' || examTotalStr !== '';
+      if(!hasQuiz && !hasExam){ alert('Please enter at least a Quiz OR an Exam (raw score and total items).'); return; }
 
-// Edit / Delete
-function editEntry(i){
-  const e=entries[i];
-  showSection('addEntry');
-  document.getElementById('date').value=e.date;
-  document.getElementById('type').value=e.type;
-  document.getElementById('amount').value=e.amount;
-  document.getElementById('serial').value=e.serial;
-  entries.splice(i,1);
-  users[currentUser].entries=entries; saveUsers(); updateTable();
-}
-function deleteEntry(i){ entries.splice(i,1); users[currentUser].entries=entries; saveUsers(); updateDashboard(); updateTable(); }
+      // validate pairs
+      let quizPct = null, quizPass = null, quizRaw=null, quizTotal=null;
+      if(hasQuiz){
+        if(quizRawStr === '' || quizTotalStr === ''){ alert('Please fill BOTH Quiz raw score AND Quiz total items.'); return; }
+        quizRaw = parseFloat(quizRawStr); quizTotal = parseFloat(quizTotalStr);
+        if(isNaN(quizRaw) || isNaN(quizTotal) || quizTotal <= 0 || quizRaw < 0 || quizRaw > quizTotal){ alert('Quiz values invalid. Ensure 0 <= raw <= total and total > 0.'); return; }
+        quizPct = round2((quizRaw/quizTotal)*100);
+        quizPass = quizPct >= passing;
+      }
 
-// Signatories
-document.getElementById('orgLogo').addEventListener('change', function(e){
-  const file=e.target.files[0]; if(file){ const reader=new FileReader(); reader.onload=function(ev){ signatories.logo=ev.target.result; document.getElementById('logoPreview').src=ev.target.result; document.getElementById('logoPreview').classList.remove('hidden'); }; reader.readAsDataURL(file); }
-});
-function saveSignatories(){
-  signatories.orgName=document.getElementById('orgName').value;
-  signatories.reportStart=document.getElementById('reportStart').value;
-  signatories.reportEnd=document.getElementById('reportEnd').value;
-  signatories.preparedBy=document.getElementById('preparedBy').value;
-  signatories.auditedBy=document.getElementById('auditedBy').value;
-  signatories.notedBy=document.getElementById('notedBy').value;
-  users[currentUser].signatories=signatories; saveUsers(); alert('Signatories saved!');
-}
+      let examPct = null, examPass = null, examRaw=null, examTotal=null;
+      if(hasExam){
+        if(examRawStr === '' || examTotalStr === ''){ alert('Please fill BOTH Exam raw score AND Exam total items.'); return; }
+        examRaw = parseFloat(examRawStr); examTotal = parseFloat(examTotalStr);
+        if(isNaN(examRaw) || isNaN(examTotal) || examTotal <= 0 || examRaw < 0 || examRaw > examTotal){ alert('Exam values invalid. Ensure 0 <= raw <= total and total > 0.'); return; }
+        examPct = round2((examRaw/examTotal)*100);
+        examPass = examPct >= passing;
+      }
 
-// PRINT
-function printReport(){
-  const ps=document.getElementById('printSection'); let html='<div style="padding:20px;">';
-  if(signatories.logo){ html+=`<img src="${signatories.logo}" style="height:80px; display:block; margin-bottom:10px;">`; }
-  html+=`<h2 style="text-align:center;">${signatories.orgName || 'Organization Fund Report'}</h2>`;
-  html+=`<p style="text-align:center;">Period: ${signatories.reportStart||''} to ${signatories.reportEnd||''}</p>`;
-  const totalFund=entries.filter(e=>e.type==='Fund').reduce((a,b)=>a+b.amount,0);
-  const totalExpenses=entries.filter(e=>e.type==='Expense').reduce((a,b)=>a+b.amount,0);
-  html+=`<p><strong>Total Fund:</strong> ₱${totalFund.toFixed(2)}</p>`;
-  html+=`<p><strong>Total Expenses:</strong> ₱${totalExpenses.toFixed(2)}</p>`;
-  html+=`<p><strong>Net Balance:</strong> ₱${(totalFund-totalExpenses).toFixed(2)}</p>`;
-  html+=`<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse; margin-top:10px;"><tr><th>Date</th><th>OR/Serial</th><th>Type</th><th>Amount</th></tr>`;
-  entries.forEach(e=>{ html+=`<tr><td>${e.date}</td><td>${e.serial||''}</td><td>${e.type}</td><td>₱${e.amount.toFixed(2)}</td></tr>`; });
-  html+=`</table>`;
-  html+=`<p><strong>Prepared by:</strong> ${signatories.preparedBy||''}</p>`;
-  html+=`<p><strong>Audited by:</strong> ${signatories.auditedBy||''}</p>`;
-  html+=`<p><strong>Noted by:</strong> ${signatories.notedBy||''}</p>`;
-  html+='</div>'; ps.innerHTML=html; window.print();
-}
-</script>
+      // decide primary
+      const primary = examPct !== null ? {type:'Exam', pct:examPct, pass:examPass} : {type:'Quiz', pct:quizPct, pass:quizPass};
+
+      // build UI output
+      let outHtml = '';
+      if(quizPct !== null){
+        outHtml += `<div class="result-box">`;
+        outHtml += `<div style="font-weight:700">Quiz Result</div>`;
+        outHtml += `<div>Score: ${quizRaw} / ${quizTotal} → <strong>${quizPct}%</strong></div>`;
+        outHtml += `<div class='${quizPass? 'pass':'fail'}'>${quizPass? 'PASS 🎉' : 'FAIL ❌'}</div>`;
+        outHtml += `<div style="margin-top:8px">${quizPass? compliment(quizPct) : recommend('quiz', quizPct)}</div>`;
+        outHtml += `</div>`;
+      }
+      if(examPct !== null){
+        outHtml += `<div class="result-box">`;
+        outHtml += `<div style="font-weight:700">Exam Result</div>`;
+        outHtml += `<div>Score: ${examRaw} / ${examTotal} → <strong>${examPct}%</strong></div>`;
+        outHtml += `<div class='${examPass? 'pass':'fail'}'>${examPass? 'PASS 🎉' : 'FAIL ❌'}</div>`;
+        outHtml += `<div style="margin-top:8px">${examPass? compliment(examPct) : recommend('exam', examPct)}</div>`;
+        outHtml += `</div>`;
+      }
+
+      outHtml += `<div class="result-box" style="background:#efefef;margin-top:12px">`;
+      outHtml += `<div style="font-weight:700">Overall Recommendation (based on ${primary.type})</div>`;
+      outHtml += `<div style="margin-top:6px">${primary.pass? compliment(primary.pct) : recommend('overall', primary.pct)}</div>`;
+      outHtml += `</div>`;
+
+      $('output').innerHTML = outHtml;
+
+      // save to history
+      const rec = {
+        id: 'id_' + Date.now(),
+        date: nowStr(),
+        email: localStorage.getItem('uncEmail') || '',
+        habit, hours,
+        quizRaw, quizTotal, quizPct,
+        examRaw, examTotal, examPct,
+        passing
+      };
+      saveHistory(rec);
+      loadHistory();
+    }
+
+    function compliment(pct){
+      if(pct >= 90) return 'Excellent — outstanding performance! Keep going.';
+      if(pct >= 75) return 'Great work — you are doing well. Keep practicing.';
+      if(pct >= 60) return 'Good job — you passed. Maintain your study routine.';
+      return 'Nice effort — you are close. Keep reviewing and practicing.';
+    }
+    function recommend(kind, pct){
+      if(kind === 'quiz') return 'Focus on quick active recall: flashcards, short quizzes, and review incorrect items right after the quiz.';
+      if(kind === 'exam') return 'Use spaced practice, timed mock exams, and concentrate on weak topics; form a study group for problem solving.';
+      return 'Review study plan: increase practice questions, revise notes actively, and schedule shorter regular sessions.';
+    }
+
+    // history functions
+    function saveHistory(item){
+      const arr = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      arr.push(item);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+    }
+    function loadHistory(){
+      const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const email = localStorage.getItem('uncEmail');
+      const mine = all.filter(x=> x.email === email);
+      const out = $('historyList'); out.innerHTML = '';
+      $('historyCount').textContent = mine.length ? mine.length + ' records' : 'No saved records yet.';
+      mine.slice().reverse().forEach(it=>{
+        const div = document.createElement('div'); div.className = 'history-item';
+        let html = `<div style="font-size:13px;color:#444"><strong>${it.date}</strong></div>`;
+        html += `<div style="margin-top:6px">Habit: ${it.habit} • Hours: ${it.hours || 0}</div>`;
+        if(it.quizPct !== null && it.quizPct !== undefined) html += `<div>Quiz: ${it.quizRaw} / ${it.quizTotal} → ${it.quizPct}%</div>`;
+        if(it.examPct !== null && it.examPct !== undefined) html += `<div>Exam: ${it.examRaw} / ${it.examTotal} → ${it.examPct}%</div>`;
+        html += `<div style='margin-top:6px'><small>Passing: ${it.passing}%</small></div>`;
+        html += `<div style='margin-top:8px'><button onclick="deleteRecord('${it.id}')" class='secondary'>Delete</button></div>`;
+        div.innerHTML = html; out.appendChild(div);
+      });
+    }
+
+    function deleteRecord(id){
+      if(!confirm('Delete this record?')) return;
+      const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const filtered = all.filter(x=> x.id !== id);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered));
+      loadHistory();
+    }
+
+    function clearUserHistory(){
+      if(!confirm('Clear ALL your saved assessment history?')) return;
+      const email = localStorage.getItem('uncEmail');
+      const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const keep = all.filter(x=> x.email !== email);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(keep));
+      loadHistory();
+      $('output').innerHTML = '';
+    }
+  </script>
 </body>
 </html>
